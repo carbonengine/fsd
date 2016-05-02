@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -26,9 +26,7 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{3FFA49B4-B1C0-4011-8A07-0922AA516385}</ProjectGuid>
-  </PropertyGroup>
+  <PropertyGroup Label="Globals"/>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
@@ -47,7 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)/Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)/Microsoft.Cpp.Default.props"/>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.pyd</TargetExt>
     <UseOfMfc>False</UseOfMfc>
@@ -84,7 +82,7 @@
     <IntDir>..\..\autobuild\temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)/Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)/Microsoft.Cpp.props"/>
   <PropertyGroup Label="UserMacros">
     <CcpSdkPath>../../../../../../sdk</CcpSdkPath>
     <CcpSharedToolsPath>../../../../../../shared_tools</CcpSharedToolsPath>
@@ -101,13 +99,13 @@
       <Value>$(CcpBranchPath)</Value>
     </BuildMacro>
   </ItemGroup>
-  <ImportGroup Label="ExtensionSettings" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|Win32'" Label="PropertySheets" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|x64'" Label="PropertySheets" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets" />
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets" />
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|Win32'" Label="PropertySheets"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|x64'" Label="PropertySheets"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets"/>
   <PropertyGroup>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">True</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pyFSD_d</TargetName>
@@ -148,11 +146,11 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>msvcrtd.lib;msvcprtd.lib;atlsd.lib;python27_d.lib;BlueExposureStatic_d.lib;CcpCoreStatic_d.lib;psapi.lib;telemetry32.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|Win32'">
     <ClCompile>
@@ -173,11 +171,11 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>python27.lib;BlueExposureStatic.lib;CcpCoreStatic.lib;psapi.lib;telemetry32.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -198,11 +196,11 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>python27.lib;BlueExposureStatic.lib;CcpCoreStatic.lib;psapi.lib;telemetry64.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|x64'">
     <ClCompile>
@@ -223,11 +221,11 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>python27.lib;BlueExposureStatic.lib;CcpCoreStatic.lib;psapi.lib;telemetry64.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -251,11 +249,11 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>msvcrtd.lib;msvcprtd.lib;atlsd.lib;python27_d.lib;BlueExposureStatic_d.lib;CcpCoreStatic_d.lib;psapi.lib;telemetry64.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -276,26 +274,26 @@
       <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>python27.lib;BlueExposureStatic.lib;CcpCoreStatic.lib;psapi.lib;telemetry32.link.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <ResourceCompile />
-    <Manifest />
-    <PreBuildEvent />
-    <PreLinkEvent />
-    <PostBuildEvent />
+    <ResourceCompile/>
+    <Manifest/>
+    <PreBuildEvent/>
+    <PreLinkEvent/>
+    <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BoolBeResult.h" />
-    <ClInclude Include="FsdUnsignedIntegerKeyMap.h" />
-    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="BoolBeResult.h"/>
+    <ClInclude Include="FsdUnsignedIntegerKeyMap.h"/>
+    <ClInclude Include="StdAfx.h"/>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FsdUnsignedIntegerKeyMap.cpp" />
-    <ClCompile Include="FsdUnsignedIntegerKeyMap_Blue.cpp" />
-    <ClCompile Include="pyFSD.cpp" />
+    <ClCompile Include="FsdUnsignedIntegerKeyMap.cpp"/>
+    <ClCompile Include="FsdUnsignedIntegerKeyMap_Blue.cpp"/>
+    <ClCompile Include="pyFSD.cpp"/>
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
+  <ItemGroup/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
 </Project>
