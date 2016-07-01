@@ -1,3 +1,3 @@
 SET PYTHONUSERBASE=%~dp0../..
-..\..\..\..\..\..\..\shared_tools\python\27\python.exe -B test_pyFSD.py
+%CCP_PYTHON_2_7_3_x86%Python.exe -B test_pyFSD.py
 pause

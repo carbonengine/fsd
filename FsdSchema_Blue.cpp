@@ -1,9 +1,0 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Creator:		Olafur Thor Gunnarsson
-// Created:		May 2016
-// Copyright:	CCP 2016
-//
-
-#include "StdAfx.h"
-#include "FsdSchema.h"

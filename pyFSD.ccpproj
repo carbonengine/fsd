@@ -2,7 +2,6 @@
 Imports:
 - ../../../carbon/src/core_project.yaml
 - ../../../carbon/src/BlueExposure/uses_BlueExposureStatic.yaml
-- ../../../../../../sdk/libyaml/yaml-0.1.2/yaml_0.1.2.yaml
 
 # Settings from the General section, for all configurations
 General:
