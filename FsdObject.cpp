@@ -57,7 +57,7 @@ void FsdObject::SetObjectData(const char* data, uint32_t offset, const FsdSchema
 	}
 
 	uint32_t offsetAttributeArrayStart = m_offset + m_objectSchemaAttributes.endOfFixedSizedData + 8;
-	uint32_t sizeOfOffsetAttributeTable = 4 * attributesWithVariableOffset.size();
+	uint32_t sizeOfOffsetAttributeTable = (uint32_t)(4 * attributesWithVariableOffset.size());
 
 	m_offsetToVariableSizedData = offsetAttributeArrayStart + sizeOfOffsetAttributeTable;
 
