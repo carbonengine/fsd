@@ -28,9 +28,6 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="VectorLoader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClCompile Include="BinaryLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,9 +65,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VectorLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

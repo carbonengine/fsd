@@ -289,7 +289,6 @@
     <ClInclude Include="FsdVector.h"/>
     <ClInclude Include="SchemaTypes.h"/>
     <ClInclude Include="StdAfx.h"/>
-    <ClInclude Include="VectorLoader.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BinaryLoader.cpp"/>
@@ -307,7 +306,6 @@
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="VectorLoader.cpp"/>
   </ItemGroup>
   <ItemGroup/>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
