@@ -21,23 +21,12 @@ struct ListSchemaAttributes;
 struct DictSchemaAttributes;
 struct ObjectSchemaAttributes;
 
-enum AttributeType
-{
-	UNKNOWN_ATTRIBUTE_TYPE = 0,
-	REQUIRED_FIXED_SIZE_ATTRIBUTE = 1,
-	OPTIONAL_ATTRIBUTE = 2,
-	VARIABLE_SIZE_REQUIRED_ATTRIBUTE = 3,
-	ATTRIBUTE_TYPE_COUNT
-};
-
-
 struct FsdSchemaAttributes
 {
 	FsdSchemaAttributes();
 	~FsdSchemaAttributes();
 
-	SchemaType schemaType;
-	AttributeType attrType;	
+	SchemaType schemaType;	
 
 	std::string schemaTypeAsString;
 	
@@ -47,38 +36,13 @@ struct FsdSchemaAttributes
 	int size;
 	bool hasSize;
 
-	BoolSchemaAttributes *boolAttributes;
-	IntSchemaAttributes *intAttributes;
-	FloatSchemaAttributes *floatAttributes;
-	StringSchemaAttributes *stringAttributes;
-	VectorSchemaAttributes *vectorAttributes;
-	ListSchemaAttributes *listAttributes;
-	DictSchemaAttributes *dictAttributes;
-	ObjectSchemaAttributes *objectAttributes;
+	PyObject* defaultValue;
+	std::shared_ptr<VectorSchemaAttributes> vectorAttributes;
+	std::shared_ptr<ListSchemaAttributes> listAttributes;
+	std::shared_ptr<DictSchemaAttributes> dictAttributes;
+	std::shared_ptr<ObjectSchemaAttributes> objectAttributes;
 };
 TYPEDEF_BLUECLASS(FsdSchemaAttributes)
-
-
-struct BoolSchemaAttributes
-{
-	bool defaultValue;
-};
-
-struct IntSchemaAttributes
-{
-	int defaultValue;
-};
-
-struct FloatSchemaAttributes
-{
-	float floatDefaultValue;
-	double doubleDefaultValue;
-};
-
-struct StringSchemaAttributes
-{
-	std::string defaultValue;
-};
 
 struct VectorSchemaAttributes
 {
@@ -89,31 +53,31 @@ struct VectorSchemaAttributes
 struct ListSchemaAttributes
 {
 	ListSchemaAttributes();
-	//~ListSchemaAttributes();
+	~ListSchemaAttributes();
 
-	FsdSchemaAttributes *listItemSchema;
+	std::shared_ptr<FsdSchemaAttributes> listItemSchema;
 };
 
 struct DictSchemaAttributes
 {
 	DictSchemaAttributes();
-	//~DictSchemaAttributes();
+	~DictSchemaAttributes();
 
 	bool multiIndex;
 	bool buildIndex;
 	std::string indexBy;
 
-	FsdSchemaAttributes *keySchema;
-	FsdSchemaAttributes *valueSchema;
+	std::shared_ptr<FsdSchemaAttributes> keySchema;
+	std::shared_ptr<FsdSchemaAttributes> valueSchema;
 };
 
 struct ObjectSchemaAttributes
 {
 	ObjectSchemaAttributes();
-	//~ObjectSchemaAttributes();
+	~ObjectSchemaAttributes();
 
 	// Keep the attributeNames as strings for quicker fetching
-	std::map<std::string, FsdSchemaAttributes*> attributes;
+	std::map<std::string, std::shared_ptr<FsdSchemaAttributes>> attributes;
 	std::map<std::string, uint32_t> constantAttributeOffsets;
 	uint32_t endOfFixedSizedData;
 

@@ -32,30 +32,29 @@ void FsdVector::SetVectorData(const char* data, uint32_t offset, const FsdSchema
 	{
 		case FLOAT32_VECTOR2_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR2;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2*>(m_data));
 			break;
 		case FLOAT32_VECTOR3_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR3;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3*>(m_data));
 			break;
 		case FLOAT32_VECTOR4_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR4;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4*>(m_data));
 			break;
 		case DOUBLE_VECTOR2_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR2D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2d*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2d*>(m_data));
 			break;
 		case DOUBLE_VECTOR3_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR3D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3d*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3d*>(m_data));
 			break;
 		case DOUBLE_VECTOR4_TUPLE_SCHEMA_TYPE:
 			m_vectorType = FSD_VECTOR4D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4d*>(data));
+			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4d*>(m_data));
 			break;
 	} 
-
 }
 
 BlueStdResult FsdVector::GetAttr(const char* attributeName, PyObject*& result)

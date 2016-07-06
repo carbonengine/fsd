@@ -20,7 +20,6 @@ m_path("")
 
 FsdObject::~FsdObject()
 {
-
 }
 
 void FsdObject::SetObjectData(const char* data, uint32_t offset, const FsdSchemaAttributes& schemaAttributes, const char * path)
@@ -105,12 +104,41 @@ BlueStdResult FsdObject::GetAttr(const char* attributeName, PyObject*& result)
 		uint32_t offset = m_offsetAttributeLookupTable[attributeNameString];
 		std::string newPath = std::string(m_path) + std::string(".") + attributeNameString;
 		std::string value(&m_data[m_offsetToVariableSizedData + offset], 24);
-		//result = BlueWrapReturnValue(BlueScriptArguments(), value);
 		result = BinaryLoader::LoadBinaryFromString(m_data, offset, *m_objectSchemaAttributes.attributes[attributeNameString], newPath.c_str());
 		return BlueStdResult(BLUE_STD_RESULT_OK);
+	}
+
+	// check for default values
+	BlueStdResult defaultAttributeLookupResult = GetDefaultValue(attributeNameString, result);
+
+	if (defaultAttributeLookupResult.GetType() == BLUE_STD_RESULT_OK)
+	{
+		return defaultAttributeLookupResult;
 	}
 
 	std::string message = "Object: " + std::string(m_path) +
 							" - Attribute '" + attributeNameString +"' does not exist on this instance";
 	return BlueStdResult(BLUE_STD_RESULT_ATTRIBUTE_ERROR, message.c_str());
+}
+
+BlueStdResult FsdObject::GetDefaultValue(const std::string attributeName, PyObject*& result)
+{
+	auto attributeSchema = m_objectSchemaAttributes.attributes.find(attributeName);
+
+	if (attributeSchema == m_objectSchemaAttributes.attributes.end())
+	{
+		// return something
+		return BlueStdResult(BLUE_STD_RESULT_ATTRIBUTE_ERROR);
+	}
+
+	std::shared_ptr<FsdSchemaAttributes> schema = attributeSchema->second;
+	if (!schema->hasDefault)
+	{
+		// we don't have a default value for this optional attribute
+		return BlueStdResult(BLUE_STD_RESULT_ATTRIBUTE_ERROR);
+	}
+	Py_INCREF(schema->defaultValue);
+	result = schema->defaultValue;
+	
+	return BlueStdResult(BLUE_STD_RESULT_OK);
 }

@@ -110,28 +110,12 @@ PyObject* BinaryLoader::LoadUnicodeStringFromBinaryString(const char* data, uint
 	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(&data[offset]);
 
 	// WHY IS THERE NO STL UNICODE ENCODING THING?
-	const int requiredBufferSize = MultiByteToWideChar(
-		UTF8,
-		0,
-		&data[4 + offset],
-		stringLength,
-		nullptr,
-		0
-		);
+	const int requiredBufferSize = MultiByteToWideChar( UTF8, 0, &data[4 + offset], stringLength, nullptr, 0 );
 
 	std::wstring retVal;
 	retVal.resize(requiredBufferSize);
 
-	if (
-		MultiByteToWideChar(
-		UTF8,
-		0,
-		&data[4 + offset],
-		stringLength,
-		&retVal[0],
-		requiredBufferSize
-		) == 0
-		)
+	if ( MultiByteToWideChar( UTF8, 0, &data[4 + offset], stringLength, &retVal[0], requiredBufferSize ) == 0 )
 	{
 		PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
 		return nullptr;

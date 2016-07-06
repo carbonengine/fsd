@@ -32,6 +32,8 @@ public:
 private:
 	ObjectSchemaAttributes m_objectSchemaAttributes;
 	
+	BlueStdResult GetDefaultValue(const std::string attributeName, PyObject*& result);
+
 	// This represents a lookup table for all variable offset items
 	std::map<std::string, uint32_t> m_offsetAttributeLookupTable;
 	uint32_t m_offsetToVariableSizedData;

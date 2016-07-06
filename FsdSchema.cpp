@@ -15,14 +15,14 @@ ObjectSchemaAttributes::ObjectSchemaAttributes() :
 endOfFixedSizedData(0)
 {}	
 
-/*ObjectSchemaAttributes::~ObjectSchemaAttributes()
+ObjectSchemaAttributes::~ObjectSchemaAttributes()
 {
 	for (auto attr = attributes.begin(); attr != attributes.end(); attr++)
 	{
-		delete attr->second;
+		attr->second.reset();
 	}
 	attributes.clear();
-}*/
+}
 
 DictSchemaAttributes::DictSchemaAttributes():
 	keySchema(nullptr),
@@ -31,49 +31,46 @@ DictSchemaAttributes::DictSchemaAttributes():
 	buildIndex(false),
 	indexBy("")
 {}
-/*
+
 DictSchemaAttributes::~DictSchemaAttributes()
 {
-	delete keySchema;
-	delete valueSchema;
+	keySchema.reset();
+	valueSchema.reset();
 }
-*/
+
 
 ListSchemaAttributes::ListSchemaAttributes() : 
 	listItemSchema(nullptr)
 {}
-/*
+
 ListSchemaAttributes::~ListSchemaAttributes()
 {
-	delete listItemSchema;	
-}*/
+	listItemSchema.reset();
+}
 
 FsdSchemaAttributes::FsdSchemaAttributes() :
-	boolAttributes(nullptr),
-	intAttributes(nullptr),
-	floatAttributes(nullptr),
-	stringAttributes(nullptr),
 	vectorAttributes(nullptr),
 	objectAttributes(nullptr),
 	listAttributes(nullptr),
 	dictAttributes(nullptr),
 	schemaType(UNKNOWN_SCHEMA_TYPE),
-	attrType(UNKNOWN_ATTRIBUTE_TYPE),
 	isOptional(false),
 	hasDefault(false),
 	hasSize(false),
+	defaultValue(nullptr),
 	size(0)
 {}
 
 FsdSchemaAttributes::~FsdSchemaAttributes()
 {
-	delete boolAttributes;
-	delete intAttributes;
-	delete floatAttributes;
-	delete stringAttributes;
-	delete vectorAttributes;
-	delete objectAttributes;
-	delete dictAttributes;
+	vectorAttributes.reset();
+	objectAttributes.reset();
+	dictAttributes.reset();
+	
+	if (defaultValue)
+	{
+		Py_DECREF(defaultValue);
+	}
 }
 
 bool GetRequiredStringDictValue(PyObject* dict, const std::string dictKey, unsigned int argID, std::string &out)
@@ -188,6 +185,13 @@ bool GetOptionalDoubleDictValue(PyObject* dict, const std::string dictKey, unsig
 	return true;
 }
 
+PyObject* GetPyObjectValueFromDict(PyObject* dict, const std::string dictKey)
+{
+	PyObject* item = PyDict_GetItemString(dict, dictKey.c_str());
+	Py_INCREF(item);
+	return item;
+}
+
 bool HasOptionalValue(PyObject* dict, const std::string dictKey)
 {
 	PyObject* item = PyDict_GetItemString(dict, dictKey.c_str());
@@ -198,21 +202,12 @@ bool HasOptionalValue(PyObject* dict, const std::string dictKey)
 bool CreateBoolSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
 	result.schemaType = BOOL_SCHEMA_TYPE;
-	if (result.hasDefault)
-	{
-		result.boolAttributes = new BoolSchemaAttributes();
-		if (!GetOptionalBoolDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.boolAttributes->defaultValue))
-		{
-			return false;
-		}
-	}
-
+	
 	return true;
 }
 
 bool CreateIntSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
-	CCP_LOGNOTICE("Creating int schema");
 	int min = -100;
 	int exclusiveMin = -100;
 	if (!GetOptionalIntDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_MIN, argID, min))
@@ -223,23 +218,14 @@ bool CreateIntSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned i
 	{
 		return false;
 	}
-	if (result.hasDefault)
-	{
-		result.intAttributes = new IntSchemaAttributes();
-		if (!GetOptionalIntDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.intAttributes->defaultValue))
-		{
-			return false;
-		}
-	}
-
+	
 	SchemaType type = SIGNED_32_BIT_INT_SCHEMA_TYPE;
 
 	if (min >= 0 || exclusiveMin >= -1)
 	{
-		CCP_LOGNOTICE("Int schema is unsigned");
 		type = UNSIGNED_32_BIT_INT_SCHEMA_TYPE;
 	}
-
+	
 	result.schemaType = type;
 	return true;
 }
@@ -255,20 +241,8 @@ bool CreateFloatSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned
 	
 	SchemaType type = FLOAT32_SCHEMA_TYPE;
 
-	result.floatAttributes = new FloatSchemaAttributes();
-	if (precision == PY_SCHEMA_CONSTANTS::PRECISION_FLOAT)
+	if (precision != PY_SCHEMA_CONSTANTS::PRECISION_FLOAT)
 	{		
-		if (!GetOptionalFloatDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.floatAttributes->floatDefaultValue))
-		{
-			return false;
-		}
-	}
-	else
-	{
-		if (!GetOptionalDoubleDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.floatAttributes->doubleDefaultValue))
-		{
-			return false;
-		}
 		type = DOUBLE_SCHEMA_TYPE;
 	}
 	
@@ -278,30 +252,12 @@ bool CreateFloatSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned
 
 bool CreateStringSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
-	if (result.hasDefault)
-	{
-		result.stringAttributes = new StringSchemaAttributes();
-		if (!GetOptionalStringDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.stringAttributes->defaultValue))
-		{
-			return false;
-		}
-	}
-
 	result.schemaType = STRING_SCHEMA_TYPE;
 	return true;
 }
 
 bool CreateUnicodeSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
-	if (result.hasDefault)
-	{
-		result.stringAttributes = new StringSchemaAttributes();
-		if (!GetOptionalStringDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT, argID, result.stringAttributes->defaultValue))
-		{
-			return false;
-		}
-	}
-
 	result.schemaType = UTF8_SCHEMA_TYPE;
 	return true;
 }
@@ -347,7 +303,7 @@ bool CreateVectorSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 		}
 	}
 	result.schemaType = type;
-	result.vectorAttributes = new VectorSchemaAttributes();
+	result.vectorAttributes.reset(new VectorSchemaAttributes());
 	result.vectorAttributes->hasAliases = false;
 	if (HasOptionalValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_ALIASES))
 	{
@@ -373,7 +329,7 @@ bool CreateListSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned 
 {
 
 	PyObject* itemTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_ITEMTYPES);
-	result.listAttributes = new ListSchemaAttributes();
+	result.listAttributes.reset(new ListSchemaAttributes());
 	CreateSchema(itemTypes, *result.listAttributes->listItemSchema, argID);
 	return true;
 }
@@ -383,7 +339,7 @@ bool CreateDictSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned 
 	PyObject* keyTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_KEYTYPES);
 	PyObject* valueTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_VALUETYPES);
 
-	result.dictAttributes= new DictSchemaAttributes();
+	result.dictAttributes.reset(new DictSchemaAttributes());
 	CreateSchema(keyTypes, *result.dictAttributes->keySchema, argID);
 	CreateSchema(valueTypes, *result.dictAttributes->valueSchema, argID);
 
@@ -407,8 +363,8 @@ bool CreateObjectSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 {	
 
 	result.schemaType = OBJECT_SCHEMA_TYPE;
-	result.objectAttributes = new ObjectSchemaAttributes();
-	result.objectAttributes->attributes = std::map<std::string, FsdSchemaAttributes*>();
+	result.objectAttributes.reset(new ObjectSchemaAttributes());
+	result.objectAttributes->attributes = std::map<std::string, std::shared_ptr<FsdSchemaAttributes>>();
 	result.objectAttributes->attributesWithVariableOffset = std::vector<std::string>();
 	result.objectAttributes->optionalValueLookups = std::map<std::string, uint64_t>();
 	result.objectAttributes->constantAttributeOffsets = std::map<std::string, uint32_t>();
@@ -422,7 +378,7 @@ bool CreateObjectSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 		FsdSchemaAttributes* attributeSchema = new FsdSchemaAttributes();
 
 		CreateSchema(value, *attributeSchema, argID);
-		result.objectAttributes->attributes[attributeName] = attributeSchema;
+		result.objectAttributes->attributes[attributeName] = std::shared_ptr<FsdSchemaAttributes>(attributeSchema);
 	}
 
 	pos = 0;
@@ -547,6 +503,7 @@ bool CreateSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int 
 	if (HasOptionalValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT))
 	{
 		result.hasDefault = true;
+		result.defaultValue = GetPyObjectValueFromDict(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_DEFAULT);
 	}
 
 	if (HasOptionalValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_SIZE))
