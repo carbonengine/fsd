@@ -56,6 +56,8 @@ struct ListSchemaAttributes
 	~ListSchemaAttributes();
 
 	std::shared_ptr<FsdSchemaAttributes> listItemSchema;
+	bool fixedSized;
+	uint32_t listSize;
 };
 
 struct DictSchemaAttributes
@@ -69,6 +71,7 @@ struct DictSchemaAttributes
 
 	std::shared_ptr<FsdSchemaAttributes> keySchema;
 	std::shared_ptr<FsdSchemaAttributes> valueSchema;
+	std::shared_ptr<FsdSchemaAttributes> keyFooterSchema;
 };
 
 struct ObjectSchemaAttributes

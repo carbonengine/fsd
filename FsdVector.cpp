@@ -8,103 +8,221 @@
 #include "StdAfx.h"
 #include "FsdVector.h"
 
-
-FsdVector::FsdVector(IRoot* lockobj) :
-m_data(nullptr),
-m_path("")
-{
-}
-
-
-FsdVector::~FsdVector()
-{
-
-}
-
-void FsdVector::SetVectorData(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)
+void FsdVector::Initialize(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)
 {
 	m_data = &data[offset];
 	m_schemaAttributes = schemaAttributes;
 	m_path = path;
 
-	m_aliasIndices = m_schemaAttributes.vectorAttributes->aliases;
 	switch (m_schemaAttributes.schemaType)
 	{
-		case FLOAT32_VECTOR2_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR2;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2*>(m_data));
-			break;
-		case FLOAT32_VECTOR3_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR3;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3*>(m_data));
-			break;
-		case FLOAT32_VECTOR4_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR4;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4*>(m_data));
-			break;
-		case DOUBLE_VECTOR2_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR2D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2d*>(m_data));
-			break;
-		case DOUBLE_VECTOR3_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR3D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3d*>(m_data));
-			break;
-		case DOUBLE_VECTOR4_TUPLE_SCHEMA_TYPE:
-			m_vectorType = FSD_VECTOR4D;
-			m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4d*>(m_data));
-			break;
-	} 
+	case FLOAT32_VECTOR2_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR2;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2*>(m_data));
+		break;
+	case FLOAT32_VECTOR3_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR3;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3*>(m_data));
+		break;
+	case FLOAT32_VECTOR4_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR4;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4*>(m_data));
+		break;
+	case DOUBLE_VECTOR2_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR2D;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector2d*>(m_data));
+		break;
+	case DOUBLE_VECTOR3_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR3D;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3d*>(m_data));
+		break;
+	case DOUBLE_VECTOR4_TUPLE_SCHEMA_TYPE:
+		m_vectorType = FSD_VECTOR4D;
+		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4d*>(m_data));
+		break;
+	}
 }
 
-BlueStdResult FsdVector::GetAttr(const char* attributeName, PyObject*& result)
+PyObject* FsdVector::GetByAttribute(const char* attribute_name)
 {
-	BlueStdResult success;
-	if (m_aliasIndices.find(attributeName) != m_aliasIndices.end())
+	std::string attributeName = std::string(attribute_name);
+
+	std::map<std::string, uint8_t> aliases = m_schemaAttributes.vectorAttributes->aliases;
+	if (aliases.find(attributeName) != aliases.end())
 	{
-		if (m_vectorType <= FSD_VECTOR4)
-		{
-			const char* data = &m_data[4 * m_aliasIndices[attributeName]];
-			float value = *reinterpret_cast<const float*>(data);
-			result = BlueWrapReturnValue(BlueScriptArguments(), value);
-			return BlueStdResult(BLUE_STD_RESULT_OK);
-		}
-		else
-		{
-			const char* data = &m_data[4 * m_aliasIndices[attributeName]];
-			double value = *reinterpret_cast<const double*>(data);
-			result = BlueWrapReturnValue(BlueScriptArguments(), value);
-			return BlueStdResult(BLUE_STD_RESULT_OK);
-		}
+		return GetValueByIndex(aliases[attributeName]);
+	}
+	if (attributeName == "data")
+	{
+		return BlueWrapReturnValue(BlueScriptArguments(), m_exposedData);
 	}
 	std::string message = "Attribute '" + std::string(attributeName) + "' does not exist on this instance";
-	return BlueStdResult(BLUE_STD_RESULT_ATTRIBUTE_ERROR, message.c_str());
+	PyErr_SetString(PyExc_AttributeError, message.c_str());
+	return nullptr;
 }
 
-BlueStdResult FsdVector::GetItem( uint32_t index, PyObject*& result )
+PyObject* FsdVector::GetValueByIndex(uint8_t index)
 {
-	uint8_t maxIndex = 0;
+	if (m_vectorType <= FSD_VECTOR4)
+	{
+		const char* data = &m_data[4 * index];
+		float value = *reinterpret_cast<const float*>(data);
+		return BlueWrapReturnValue(BlueScriptArguments(), value);
+	}
+
+	const char* data = &m_data[4 * index];
+	double value = *reinterpret_cast<const double*>(data);
+	return BlueWrapReturnValue(BlueScriptArguments(), value);
+}
+
+PyObject* FsdVector::GetByIndex(uint8_t index)
+{
+	uint8_t length = GetLength();
+	uint8_t originalIndex = index;
+
+	if (index < 0)
+	{
+		index += length;
+	}
+	if (index > length || index < 0)
+	{
+		std::string message = "FsdVector: " + m_schemaAttributes.schemaTypeAsString;
+		message += " trying to get index " + int(originalIndex);
+		message += " of a vector that is " + length;
+		message += " long.";
+		PyErr_SetString(PyExc_IndexError, message.c_str());
+		return 0;
+	}
+	return GetValueByIndex(index);
+}
+
+Py_ssize_t FsdVector::GetLength()
+{
 	switch (m_vectorType)
 	{
 	case FSD_VECTOR2:
 	case FSD_VECTOR2D:
-		maxIndex = 1;
-		break;
+		return 2;
 	case FSD_VECTOR3:
 	case FSD_VECTOR3D:
-		maxIndex = 2;
-		break;
+		return 3;
 	case FSD_VECTOR4:
 	case FSD_VECTOR4D:
-		maxIndex = 3;
-		break;
+		return 4;
 	}
+	std::string message = "pyFSD.FsdVector: Could not determine length of vector with vectorType:" + m_vectorType;
+	PyErr_SetString(PyExc_AttributeError, message.c_str());
+	return 0;
+}
 
-	// todo: add exception handling
-	const char* data = &m_data[4 * index];
-	float value = *reinterpret_cast<const float*>(data);
-	result = BlueWrapReturnValue(BlueScriptArguments(), value);
+// The python class functions on this enum type
+static PyMethodDef PyFsdVectorType_methods[] = {
+	{
+		"__dir__",
+		(PyCFunction)FsdVector_Dir, METH_NOARGS,
+		"Returns a list of the enumeration names for this enum"
+	},
+	{ NULL, NULL, 0, NULL }
+};
 
-	std::string message = "Index out of range";
-	return BlueStdResult(BLUE_STD_RESULT_INDEX_ERROR, message.c_str());
+static PySequenceMethods fsdVectorSequenceMethods = {
+	FsdVector_Length,
+	0,
+	0,
+	FsdVector_GetIndex,
+	0,
+	0,
+	0
+};
+
+PyTypeObject PyFsdVectorType = {
+	PyObject_HEAD_INIT(NULL)
+	0,
+	"pyFSD.FsdVector",
+	sizeof(FsdVector),
+	0,
+	FsdVector_dealloc,			/* tp_dealloc */
+	0,								/* tp_print */
+	FsdVector_GetAttrString,		/* tp_getattr */
+	0,								/* tp_setattr        */
+	0,								/* tp_compare        */
+	0,								/* tp_repr           */
+	0,								/* tp_as_number      */
+	&fsdVectorSequenceMethods,		/* tp_as_sequence    */
+	0,								/* tp_as_mapping     */
+	0,								/* tp_hash           */
+	0,								/* tp_call           */
+	0,								/* tp_str            */
+	0,								/* tp_getattro       */
+	0,								/* tp_setattro       */
+	0,								/* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,				/* tp_flags          */
+	0,								/* tp_doc            */
+	0,								/* tp_traverse       */
+	0,								/* tp_clear          */
+	0,								/* tp_richcompare    */
+	0,								/* tp_weaklistoffset */
+	0,								/* tp_iter           */
+	0,								/* tp_iternext       */
+	PyFsdVectorType_methods,		/* tp_methods        */
+	0,								/* tp_members        */
+	0,								/* tp_getset         */
+	0,								/* tp_base           */
+	0,								/* tp_dict           */
+	0,								/* tp_descr_get      */
+	0,								/* tp_descr_set      */
+	0,								/* tp_dictoffset     */
+	(initproc)FsdVector_init,		/* tp_init           */
+	0,								// tp_alloc
+	FsdVector_new,				/* tp_new */
+};
+
+static PyObject* FsdVector_Dir(PyObject *self, PyObject * args)
+{
+	return nullptr;
+}
+
+void FsdVector_dealloc(PyObject* self)
+{
+	PyObject_Del(self);
+};
+
+PyObject* FsdVector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	FsdVector *self;
+	self = (FsdVector*)type->tp_alloc(type, 0);
+
+	return (PyObject *)self;
+}
+
+static int FsdVector_init(FsdVector *self, PyObject *args, PyObject *kwds)
+{
+	PyErr_SetString(PyExc_NotImplementedError, "pyFSD.FsdVector::__init__  cannot initialize from python");
+	return -1;
+}
+
+PyObject* FsdVector_GetAttrString(PyObject *o, char* attr_name)
+{
+	FsdVector* fsdVector = static_cast<FsdVector*>(o);
+	return fsdVector->GetByAttribute(attr_name);
+}
+
+Py_ssize_t FsdVector_Length(PyObject *selfO)
+{
+	FsdVector* fsdVector = static_cast<FsdVector*>(selfO);
+	return fsdVector->GetLength();
+}
+
+PyObject *FsdVector_GetIndex(PyObject *selfO, Py_ssize_t i)
+{
+	FsdVector* fsdVector = static_cast<FsdVector*>(selfO);
+	return fsdVector->GetByIndex(i);
+}
+
+FsdVector* CreateFsdVector(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)
+{
+	FsdVector* fsdVector = static_cast<FsdVector*>(FsdVector_new(&PyFsdVectorType, Py_None, Py_None));
+	fsdVector->Initialize(data, offset, schemaAttributes, path);
+	
+	return fsdVector;
 }

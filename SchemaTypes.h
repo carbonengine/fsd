@@ -38,6 +38,9 @@ enum SchemaType {
 	OBJECT_SCHEMA_TYPE,
 	UNION_SCHEMA_TYPE,
 
+	DICT_SCHEMA_TYPE,
+	LIST_SCHEMA_TYPE,
+
 	SCHEMA_TYPES_COUNT
 };
 
@@ -46,6 +49,7 @@ public:
 	static const char* TYPE_BOOL;
 	static const char* TYPE_INT;
 	static const char* TYPE_TYPEID;
+	static const char* TYPE_LOCALIZATIONID;
 	static const char* TYPE_FLOAT;
 	static const char* TYPE_STRING;
 	static const char* TYPE_UNICODE;
@@ -67,6 +71,7 @@ public:
 	static const char* ATTRIBUTE_ITEMTYPES;
 	static const char* ATTRIBUTE_KEYTYPES;
 	static const char* ATTRIBUTE_VALUETYPES;
+	static const char* ATTRIBUTE_KEYFOOTERSCHEMA;
 	static const char* ATTRIBUTE_INDEXBY;
 	static const char* ATTRIBUTE_MULTIINDEX;
 	static const char* ATTRIBUTE_BUILDINDEX;
@@ -79,6 +84,7 @@ public:
 	static const char* OBJECT_ATTRIBUTES_WITH_VARIABLE_OFFSET;
 	static const char* OBJECT_MAX_BIT_FIELD_VALUE;
 	static const char* OBJECT_CONSTANT_ATTRIBUTE_OFFSETS;
+	static const char* LIST_LENGTH;
 
 };
 

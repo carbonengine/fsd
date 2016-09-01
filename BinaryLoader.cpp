@@ -7,8 +7,7 @@
 
 #include "StdAfx.h"
 #include "BinaryLoader.h"
-#include "FsdVector.h"
-#include "FsdObject.h"
+#include "BinaryLoaderHelper.h"
 
 const UINT UTF8 = 65001;
 
@@ -40,25 +39,31 @@ PyObject* BinaryLoader::LoadBinaryFromString(const char* data, uint32_t offset, 
 		retValue = BinaryLoader::LoadUnicodeStringFromBinaryString(data, offset, path);
 		break;
 	case FLOAT32_VECTOR2_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector2(data, offset, schemaAttributes, path);
+		return static_cast<FsdVector*>(BinaryLoader::LoadVector2(data, offset, schemaAttributes, path));
 		break;
 	case FLOAT32_VECTOR3_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector3(data, offset, schemaAttributes, path);
+		return BinaryLoader::LoadVector3(data, offset, schemaAttributes, path);
 		break;
 	case FLOAT32_VECTOR4_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector4(data, offset, schemaAttributes, path);
+		return BinaryLoader::LoadVector4(data, offset, schemaAttributes, path);
 		break;
 	case DOUBLE_VECTOR2_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector2d(data, offset, schemaAttributes, path);
+		return BinaryLoader::LoadVector2d(data, offset, schemaAttributes, path);
 		break;
 	case DOUBLE_VECTOR3_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector3d(data, offset, schemaAttributes, path);
+		return BinaryLoader::LoadVector3d(data, offset, schemaAttributes, path);
 		break;
 	case DOUBLE_VECTOR4_TUPLE_SCHEMA_TYPE:
-		retValue = BinaryLoader::LoadVector4d(data, offset, schemaAttributes, path);
+		return BinaryLoader::LoadVector4d(data, offset, schemaAttributes, path);
 		break;
 	case OBJECT_SCHEMA_TYPE:
 		retValue = BinaryLoader::LoadObjectFromString(data, offset, schemaAttributes, path);
+		break;
+	case LIST_SCHEMA_TYPE:
+		retValue = BinaryLoader::LoadListFromString(data, offset, schemaAttributes, path);
+		break;
+	case DICT_SCHEMA_TYPE:
+		retValue = BinaryLoader::LoadDictFromString(data, offset, schemaAttributes, path);
 		break;
 	default:
 		std::string error = "unsupported schema type '" + schemaAttributes.schemaTypeAsString + "'";
@@ -68,56 +73,102 @@ PyObject* BinaryLoader::LoadBinaryFromString(const char* data, uint32_t offset, 
 	return retValue;
 }
 
+bool BinaryLoader::CLoadBoolFromBinaryString(const char* data, uint32_t offset, const char* path)
+{
+	std::string dataString(&data[offset], sizeof(bool));
+	return *reinterpret_cast<const bool*>(dataString.c_str());
+}
+
 PyObject* BinaryLoader::LoadBoolFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	bool value = *reinterpret_cast<const bool*>(&data[offset]);
-	return BlueWrapReturnValue(BlueScriptArguments(), value);
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadBoolFromBinaryString(data, offset, path));
+}
+
+uint32_t BinaryLoader::CLoadUnsigned32BitIntFromBinaryString(const char* data, uint32_t offset, const char* path)
+{
+	std::string dataString(&data[offset], sizeof(uint32_t));
+	return *reinterpret_cast<const uint32_t*>(dataString.c_str());
 }
 
 PyObject* BinaryLoader::LoadUnsigned32BitIntFromBinaryString(const char* data, uint32_t offset, const char* path)
+{	
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadUnsigned32BitIntFromBinaryString(data, offset, path));
+}
+
+int32_t BinaryLoader::CLoadSigned32BitIntFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	uint32_t value = *reinterpret_cast<const uint32_t*>(&data[offset]);
-	return BlueWrapReturnValue(BlueScriptArguments(), value);
+	std::string dataString(&data[offset], sizeof(int32_t));
+	return *reinterpret_cast<const int32_t*>(dataString.c_str());
 }
 
 PyObject* BinaryLoader::LoadSigned32BitIntFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	int32_t value = *reinterpret_cast<const int32_t*>(&data[offset]);
-	return BlueWrapReturnValue(BlueScriptArguments(), value);
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadSigned32BitIntFromBinaryString(data, offset, path));
+}
+
+float BinaryLoader::CLoadFloatFromBinaryString(const char* data, uint32_t offset, const char* path)
+{
+	std::string dataString(&data[offset], sizeof(float));
+	return *reinterpret_cast<const float*>(dataString.c_str());
 }
 
 PyObject* BinaryLoader::LoadFloatFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	float value = *reinterpret_cast<const float*>(&data[offset]);
-	return BlueWrapReturnValue(BlueScriptArguments(), value);
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadFloatFromBinaryString(data, offset, path));
+}
+
+double BinaryLoader::CLoadDoubleFromBinaryString(const char* data, uint32_t offset, const char* path)
+{
+	std::string dataString(&data[offset], sizeof(double));
+	return *reinterpret_cast<const double*>(dataString.c_str());
 }
 
 PyObject* BinaryLoader::LoadDoubleFromBinaryString(const char* data, uint32_t offset, const char* path)
+{	
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadDoubleFromBinaryString(data, offset, path));
+}
+
+std::string BinaryLoader::CLoadStringFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	double value = *reinterpret_cast<const double*>(&data[offset]);
-	return BlueWrapReturnValue(BlueScriptArguments(), value);
+	std::string sizeString(&data[offset], sizeof(uint32_t));
+	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(sizeString.c_str());
+	std::string retVal(&data[offset + 4], stringLength);
+	return retVal;
 }
 
 PyObject* BinaryLoader::LoadStringFromBinaryString(const char* data, uint32_t offset, const char* path)
 {
-	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(&data[offset]);
-	std::string retVal(&data[offset + 4], stringLength);
-	return BlueWrapReturnValue(BlueScriptArguments(), retVal);
+	return BlueWrapReturnValue(BlueScriptArguments(), CLoadStringFromBinaryString(data, offset, path));
 }
 
-PyObject* BinaryLoader::LoadUnicodeStringFromBinaryString(const char* data, uint32_t offset, const char* path)
+std::wstring BinaryLoader::CLoadUnicodeStringFromBinaryString(const char* data, uint32_t offset, const char* path, bool &success)
 {
-	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(&data[offset]);
+	std::string sizeString(&data[offset], sizeof(uint32_t));
+	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(sizeString.c_str());
 
 	// WHY IS THERE NO STL UNICODE ENCODING THING?
-	const int requiredBufferSize = MultiByteToWideChar( UTF8, 0, &data[4 + offset], stringLength, nullptr, 0 );
+	const int requiredBufferSize = MultiByteToWideChar(UTF8, 0, &data[4 + offset], stringLength, nullptr, 0);
 
 	std::wstring retVal;
 	retVal.resize(requiredBufferSize);
 
-	if ( MultiByteToWideChar( UTF8, 0, &data[4 + offset], stringLength, &retVal[0], requiredBufferSize ) == 0 )
+	if (MultiByteToWideChar(UTF8, 0, &data[4 + offset], stringLength, &retVal[0], requiredBufferSize) == 0)
 	{
 		PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
+		success = false;
+		return retVal;
+	}
+	success = true;
+	return retVal;
+}
+
+PyObject* BinaryLoader::LoadUnicodeStringFromBinaryString(const char* data, uint32_t offset, const char* path)
+{
+	bool success;
+	std::wstring retVal = CLoadUnicodeStringFromBinaryString(data, offset, path, success);
+
+	if (!success)
+	{
 		return nullptr;
 	}
 
@@ -126,11 +177,9 @@ PyObject* BinaryLoader::LoadUnicodeStringFromBinaryString(const char* data, uint
 
 PyObject* BinaryLoader::CreateVectorWithAliases(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path)
 {
-	FsdVectorPtr fsdVector;
-	fsdVector.CreateInstance();
-
-	fsdVector->SetVectorData(data, offset, schemaAttributes, path);
-	return BlueWrapReturnValue(BlueScriptArguments(), fsdVector->GetRawRoot());
+	FsdVector* fsdVector = CreateFsdVector(data, offset, schemaAttributes, path);
+	Py_INCREF(fsdVector);
+	return fsdVector;
 }
 
 PyObject* BinaryLoader::LoadVector2(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path)
@@ -196,4 +245,16 @@ PyObject* BinaryLoader::LoadObjectFromString(const char* data, uint32_t offset, 
 	return BlueWrapReturnValue(BlueScriptArguments(), fsdObject->GetRawRoot());
 }
 
+PyObject* BinaryLoader::LoadListFromString(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path)
+{
+	FsdList* fsdList = CreateFsdList(data, offset, schemaAttributes, path);
+	Py_INCREF(fsdList);
+	return fsdList;
+}
 
+PyObject* BinaryLoader::LoadDictFromString(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path)
+{
+	FsdDict* fsdDict = CreateFsdDict(data, offset, schemaAttributes, path);
+	Py_INCREF(fsdDict);
+	return fsdDict;
+}

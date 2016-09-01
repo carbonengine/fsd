@@ -17,7 +17,7 @@ endOfFixedSizedData(0)
 
 ObjectSchemaAttributes::~ObjectSchemaAttributes()
 {
-	for (auto attr = attributes.begin(); attr != attributes.end(); attr++)
+	for (auto attr = attributes.begin(); attr != attributes.end(); ++attr)
 	{
 		attr->second.reset();
 	}
@@ -25,22 +25,27 @@ ObjectSchemaAttributes::~ObjectSchemaAttributes()
 }
 
 DictSchemaAttributes::DictSchemaAttributes():
-	keySchema(nullptr),
-	valueSchema(nullptr),
 	multiIndex(false),
 	buildIndex(false),
 	indexBy("")
-{}
+{
+	keySchema.reset(new FsdSchemaAttributes());
+	valueSchema.reset(new FsdSchemaAttributes());
+	keyFooterSchema.reset(new FsdSchemaAttributes());
+}
 
 DictSchemaAttributes::~DictSchemaAttributes()
 {
 	keySchema.reset();
 	valueSchema.reset();
+	keyFooterSchema.reset();
 }
 
 
 ListSchemaAttributes::ListSchemaAttributes() : 
-	listItemSchema(nullptr)
+	listItemSchema(nullptr),
+	fixedSized(false),
+	listSize(0)
 {}
 
 ListSchemaAttributes::~ListSchemaAttributes()
@@ -327,26 +332,36 @@ bool CreateVectorSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 
 bool CreateListSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
-
 	PyObject* itemTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_ITEMTYPES);
 	result.listAttributes.reset(new ListSchemaAttributes());
+	result.listAttributes->listItemSchema.reset(new FsdSchemaAttributes());
+	result.schemaType = LIST_SCHEMA_TYPE;
+
 	CreateSchema(itemTypes, *result.listAttributes->listItemSchema, argID);
+
+	if (HasOptionalValue(pySchema, PY_SCHEMA_CONSTANTS::LIST_LENGTH))
+	{
+		result.listAttributes->fixedSized = true;
+		int listSize;
+		GetRequiredIntDictValue(pySchema, PY_SCHEMA_CONSTANTS::LIST_LENGTH, argID, listSize);
+		result.listAttributes->listSize = listSize;
+	}
+
 	return true;
 }
 
 bool CreateDictSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {
+	result.schemaType = DICT_SCHEMA_TYPE;
 	PyObject* keyTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_KEYTYPES);
+	PyObject* keyFooterSchema = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_KEYFOOTERSCHEMA);
 	PyObject* valueTypes = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_VALUETYPES);
-
+	
 	result.dictAttributes.reset(new DictSchemaAttributes());
 	CreateSchema(keyTypes, *result.dictAttributes->keySchema, argID);
+	CreateSchema(keyFooterSchema, *result.dictAttributes->keyFooterSchema, argID);
 	CreateSchema(valueTypes, *result.dictAttributes->valueSchema, argID);
-
-	if (!GetOptionalBoolDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_BUILDINDEX, argID, result.dictAttributes->buildIndex))
-	{
-		return false;
-	}
+	
 	if (!GetOptionalBoolDictValue(pySchema, PY_SCHEMA_CONSTANTS::ATTRIBUTE_MULTIINDEX, argID, result.dictAttributes->multiIndex))
 	{
 		return false;
@@ -361,7 +376,6 @@ bool CreateDictSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned 
 
 bool CreateObjectSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int argID)
 {	
-
 	result.schemaType = OBJECT_SCHEMA_TYPE;
 	result.objectAttributes.reset(new ObjectSchemaAttributes());
 	result.objectAttributes->attributes = std::map<std::string, std::shared_ptr<FsdSchemaAttributes>>();
@@ -404,7 +418,7 @@ bool CreateObjectSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 		{
 			return false;
 		}
-		result.objectAttributes->endOfFixedSizedData = (uint32_t)(endOfFixedSizeData);
+		result.objectAttributes->endOfFixedSizedData = uint32_t(endOfFixedSizeData);
 	}
 
 	PyObject* attributesWithVariableOffset = PyDict_GetItemString(pySchema, PY_SCHEMA_CONSTANTS::OBJECT_ATTRIBUTES_WITH_VARIABLE_OFFSET);
@@ -427,7 +441,7 @@ bool CreateObjectSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigne
 
 		BlueExtractString(key, attributeName);
 		BlueExtractInt(value, lookupIndex);
-		result.objectAttributes->optionalValueLookups[attributeName] = (uint64_t)(lookupIndex);
+		result.objectAttributes->optionalValueLookups[attributeName] = uint64_t(lookupIndex);
 	}
 
 	return true;
@@ -440,7 +454,7 @@ bool IsSchemaType(const std::string schemaType, const char* expectedSchemaType)
 
 bool IsIntSchema(const std::string schemaType)
 {
-	return IsSchemaType(schemaType, PY_SCHEMA_CONSTANTS::TYPE_INT) || IsSchemaType(schemaType, PY_SCHEMA_CONSTANTS::TYPE_TYPEID);
+	return IsSchemaType(schemaType, PY_SCHEMA_CONSTANTS::TYPE_INT) || IsSchemaType(schemaType, PY_SCHEMA_CONSTANTS::TYPE_TYPEID) || IsSchemaType(schemaType, PY_SCHEMA_CONSTANTS::TYPE_LOCALIZATIONID);
 }
 
 bool IsBoolSchema(const std::string schemaType)

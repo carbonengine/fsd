@@ -18,30 +18,42 @@ enum VectorType {
 	FSD_VECTOR4,
 	FSD_VECTOR2D,
 	FSD_VECTOR3D,
-	FSD_VECTOR4D
+	FSD_VECTOR4D,
+	UNKNOWN_VECTOR_TYPE
 };
 
-BLUE_CLASS(FsdVector) :
-public IRoot
+class FsdVector: public PyObject
 {
 public:
-	EXPOSE_TO_BLUE();
+	FsdVector() :
+		m_data(nullptr),
+		m_vectorType(UNKNOWN_VECTOR_TYPE),
+		m_path(""),
+		m_exposedData(nullptr)
+	{}
 
-	FsdVector(IRoot* lockobj = NULL);
-	~FsdVector();
-
-	void SetVectorData(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path);
-	BlueStdResult GetAttr(const char* attributeName, PyObject*& result);
-	BlueStdResult GetItem(uint32_t index, PyObject*& result);
+	void Initialize(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path);
+	PyObject* GetByAttribute(const char* attribute_name);
+	PyObject* GetByIndex(uint8_t index);
+	Py_ssize_t GetLength();
 private:
-	std::map<std::string, uint8_t> m_aliasIndices;
+	PyObject* GetValueByIndex(uint8_t index);
+
+
 	VectorType m_vectorType;
 	FsdSchemaAttributes m_schemaAttributes;
 	const char* m_data;
 	std::string m_path;
-
 	PyObject* m_exposedData;
 };
 
-TYPEDEF_BLUECLASS(FsdVector);
+PyObject* FsdVector_GetAttrString(PyObject *o, char* attr_name);
+PyObject* FsdVector_Dir(PyObject *self, PyObject * args);
+void FsdVector_dealloc(PyObject* self);
+PyObject* FsdVector_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+int FsdVector_init(FsdVector *self, PyObject *args, PyObject *kwds);
+Py_ssize_t FsdVector_Length(PyObject *selfO);
+PyObject *FsdVector_GetIndex(PyObject *selfO, Py_ssize_t i);
+FsdVector* CreateFsdVector(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path);
+
 #endif

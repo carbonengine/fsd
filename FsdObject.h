@@ -12,12 +12,6 @@
 #include "StdAfx.h"
 #include "FsdSchema.h"
 
-struct OffsetToAttribute {
-	uint32_t offsetToData;
-	bool isFixedSize;
-	uint32_t sizeOfData;
-};
-
 BLUE_CLASS(FsdObject) :
 public IRoot
 {
@@ -30,7 +24,7 @@ public:
 	void SetObjectData(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path);
 	BlueStdResult GetAttr(const char* attributeName, PyObject*& result);
 private:
-	ObjectSchemaAttributes m_objectSchemaAttributes;
+	std::shared_ptr<ObjectSchemaAttributes>  m_objectSchemaAttributes;
 	
 	BlueStdResult GetDefaultValue(const std::string attributeName, PyObject*& result);
 
