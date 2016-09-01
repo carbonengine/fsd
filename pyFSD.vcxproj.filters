@@ -7,7 +7,19 @@
     <ClInclude Include="BinaryLoader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="BinaryLoaderHelper.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="BoolBeResult.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FsdDict.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FsdDictOffsetLookup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FsdList.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="FsdObject.h">
@@ -34,6 +46,15 @@
     <ClCompile Include="BinaryLoader_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FsdDict.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FsdDictOffsetLookup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FsdList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="FsdObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,9 +74,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FsdVector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FsdVector_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pyFSD.cpp">

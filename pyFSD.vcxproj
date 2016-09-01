@@ -282,7 +282,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BinaryLoader.h"/>
+    <ClInclude Include="BinaryLoaderHelper.h"/>
     <ClInclude Include="BoolBeResult.h"/>
+    <ClInclude Include="FsdDict.h"/>
+    <ClInclude Include="FsdDictOffsetLookup.h"/>
+    <ClInclude Include="FsdList.h"/>
     <ClInclude Include="FsdObject.h"/>
     <ClInclude Include="FsdSchema.h"/>
     <ClInclude Include="FsdUnsignedIntegerKeyMap.h"/>
@@ -293,6 +297,9 @@
   <ItemGroup>
     <ClCompile Include="BinaryLoader.cpp"/>
     <ClCompile Include="BinaryLoader_Blue.cpp"/>
+    <ClCompile Include="FsdDict.cpp"/>
+    <ClCompile Include="FsdDictOffsetLookup.cpp"/>
+    <ClCompile Include="FsdList.cpp"/>
     <ClCompile Include="FsdObject.cpp"/>
     <ClCompile Include="FsdObject_Blue.cpp"/>
     <ClCompile Include="FsdSchema.cpp"/>
@@ -300,7 +307,6 @@
     <ClCompile Include="FsdUnsignedIntegerKeyMap.cpp"/>
     <ClCompile Include="FsdUnsignedIntegerKeyMap_Blue.cpp"/>
     <ClCompile Include="FsdVector.cpp"/>
-    <ClCompile Include="FsdVector_Blue.cpp"/>
     <ClCompile Include="pyFSD.cpp"/>
     <ClCompile Include="SchemaTypes.cpp"/>
     <ClCompile Include="StdAfx.cpp">
