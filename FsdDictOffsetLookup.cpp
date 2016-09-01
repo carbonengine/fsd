@@ -127,7 +127,7 @@ SemiFastStringLoadingHashedOffsetLookup::SemiFastStringLoadingHashedOffsetLookup
 		fos.offset = offset;
 		fos.size = size;
 		m_hash[key] = fos;
-		offsetToStartOfData += offsetToKey + 4 + key.length();
+		offsetToStartOfData += offsetToKey + 4 + uint32_t(key.length());
 	}	
 }
 

@@ -172,7 +172,7 @@ Py_ssize_t FsdList_Length(PyObject *selfO)
 PyObject *FsdList_GetIndex(PyObject *selfO, Py_ssize_t i)
 {
 	FsdList* fsdList = static_cast<FsdList*>(selfO);
-	return fsdList->GetIndex(i);
+	return fsdList->GetIndex(int32_t(i));
 }
 
 FsdList* CreateFsdList(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)

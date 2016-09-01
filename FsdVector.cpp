@@ -77,7 +77,7 @@ PyObject* FsdVector::GetValueByIndex(uint8_t index)
 
 PyObject* FsdVector::GetByIndex(uint8_t index)
 {
-	uint8_t length = GetLength();
+	uint8_t length = uint8_t(GetLength());
 	uint8_t originalIndex = index;
 
 	if (index < 0)
@@ -109,10 +109,12 @@ Py_ssize_t FsdVector::GetLength()
 	case FSD_VECTOR4:
 	case FSD_VECTOR4D:
 		return 4;
+	default:
+		std::string message = "pyFSD.FsdVector: Could not determine length of vector with vectorType:" + m_vectorType;
+		PyErr_SetString(PyExc_AttributeError, message.c_str());
+		return 0;
+
 	}
-	std::string message = "pyFSD.FsdVector: Could not determine length of vector with vectorType:" + m_vectorType;
-	PyErr_SetString(PyExc_AttributeError, message.c_str());
-	return 0;
 }
 
 // The python class functions on this enum type
@@ -216,7 +218,7 @@ Py_ssize_t FsdVector_Length(PyObject *selfO)
 PyObject *FsdVector_GetIndex(PyObject *selfO, Py_ssize_t i)
 {
 	FsdVector* fsdVector = static_cast<FsdVector*>(selfO);
-	return fsdVector->GetByIndex(i);
+	return fsdVector->GetByIndex(uint8_t(i));
 }
 
 FsdVector* CreateFsdVector(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)
