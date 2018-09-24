@@ -20,6 +20,8 @@ ClCompile:
   PrecompiledHeader: Use
   PrecompiledHeaderFile: stdafx.h
   PrecompiledHeaderOutputFile: $(IntDir)$(TargetName).pch
+  PreprocessorDefinitions:
+  - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 
 Link:
   GenerateDebugInformation: true
@@ -30,7 +32,7 @@ Configurations:
     Imports:
     - ../../../../../../sdk/Python/ccpproj/Python_2.7.yaml
     General:
-      OutDir: ..\..\autobuild\pyFSD\python_27\$(Platform)\
+      OutDir: ../../autobuild/$(ProjectName)/python_27/$(Platform)/$(PlatformToolset)/
       TargetName: pyFSD
       TargetExt: .pyd
 
@@ -38,7 +40,7 @@ Configurations:
     Imports:
     - ../../../carbon/src/stackless/Include/stackless.yaml
     General:
-      OutDir: ..\..\autobuild\pyFSD\exefile\$(Platform)\
+      OutDir: ../../autobuild/$(ProjectName)/exefile/$(Platform)/$(PlatformToolset)/
       TargetName: pyFSD_d
       LinkIncremental: true
     ClCompile:
@@ -51,11 +53,10 @@ Configurations:
       AdditionalDependencies:
       - msvcrtd.lib
       - msvcprtd.lib
-      - atlsd.lib
 
   Release|Win32,x64:
     Imports:
     - ../../../carbon/src/stackless/Include/stackless.yaml
     General:
-      OutDir: ..\..\autobuild\pyFSD\exefile\$(Platform)\
+      OutDir: ../../autobuild/$(ProjectName)/exefile/$(Platform)/$(PlatformToolset)/
       TargetName: pyFSD
