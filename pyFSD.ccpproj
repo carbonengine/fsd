@@ -7,7 +7,6 @@ Imports:
 General:
   ConfigurationType: DynamicLibrary
   UseOfMfc: false
-  IntDir: ..\..\autobuild\temp\$(ProjectName)\$(Platform)\$(Configuration)\
   TargetExt: .pyd
 
 ClCompile:
