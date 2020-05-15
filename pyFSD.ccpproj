@@ -15,7 +15,6 @@ ClCompile:
   BufferSecurityCheck: false
   AdditionalIncludeDirectories:
   - .
-  - ../../../../../../sdk/
   PrecompiledHeader: Use
   PrecompiledHeaderFile: stdafx.h
   PrecompiledHeaderOutputFile: $(IntDir)$(TargetName).pch
@@ -29,7 +28,7 @@ Link:
 Configurations:
   Release_27|Win32,x64:
     Imports:
-    - ../../../../../../sdk/Python/ccpproj/Python_2.7.yaml
+    - ../../../vendor/Python/ccpproj/Python_2.7.yaml
     General:
       OutDir: ../../autobuild/$(ProjectName)/python_27/$(Platform)/$(PlatformToolset)/
       TargetName: pyFSD
