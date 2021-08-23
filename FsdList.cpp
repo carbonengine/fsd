@@ -9,7 +9,6 @@
 #include "FsdList.h"
 #include "BinaryLoader.h"
 #include "BinaryLoaderHelper.h"
-#include <sstream>
 
 
 void FsdList::Initialize(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path)
@@ -138,7 +137,7 @@ PyTypeObject PyFsdListType = {
 	FsdList_new,				/* tp_new */
 };
 
-static PyObject* FsdList_Dir(PyObject *self, PyObject * args)
+PyObject* FsdList_Dir(PyObject *self, PyObject * args)
 {
 	return nullptr;
 }
@@ -157,7 +156,7 @@ PyObject* FsdList_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	return self;
 }
 
-static int FsdList_init(FsdList *self, PyObject *args, PyObject *kwds)
+int FsdList_init(FsdList *self, PyObject *args, PyObject *kwds)
 {
 	PyErr_SetString(PyExc_NotImplementedError, "pyFSD.FsdList::__init__  cannot initialize from python");
 	return -1;

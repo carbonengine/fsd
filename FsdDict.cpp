@@ -12,8 +12,7 @@
 #include <sstream>
 #include <iostream>
 
-FsdDict::FsdDict(): 
-m_dictLength(0),
+FsdDict::FsdDict():
 m_data(nullptr),
 m_offsetToData(0), 
 m_offsetLookup(nullptr)
@@ -150,7 +149,7 @@ PyTypeObject PyFsdDictType = {
 	FsdDict_new,				/* tp_new */
 };
 
-static PyObject* FsdDict_Dir(PyObject *self, PyObject * args)
+PyObject* FsdDict_Dir(PyObject *self, PyObject * args)
 {
 	return nullptr;
 }
@@ -161,7 +160,7 @@ void FsdDict_dealloc(PyObject* self)
 	delete fsdDict;
 }
 
-static PyObject* FsdDict_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+PyObject* FsdDict_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
 	auto self = new FsdDict;
 	self->ob_refcnt = 1;
@@ -169,13 +168,13 @@ static PyObject* FsdDict_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	return self;
 }
 
-static int FsdDict_init(FsdDict *self, PyObject *args, PyObject *kwds)
+int FsdDict_init(FsdDict *self, PyObject *args, PyObject *kwds)
 {
 	PyErr_SetString(PyExc_NotImplementedError, "pyFSD.FsdDict::__init__  cannot initialize from python");
 	return -1;
 }
 
-static PyObject* FsdDict_GetAttrString(PyObject *o, char* attr_name)
+PyObject* FsdDict_GetAttrString(PyObject *o, char* attr_name)
 {
 	FsdDict* fsdDict = static_cast<FsdDict*>(o);
 	std::string attributeName(attr_name);
@@ -185,20 +184,20 @@ static PyObject* FsdDict_GetAttrString(PyObject *o, char* attr_name)
 	return nullptr;
 }
 
-static Py_ssize_t FsdDict_Length(PyObject *selfO)
+Py_ssize_t FsdDict_Length(PyObject *selfO)
 {
 	std::string message = "FsdDict: Could not determine length of FsdDict";
 	PyErr_SetString(PyExc_AttributeError, message.c_str());
 	return 0;
 }
 
-static PyObject* FsdDict_Subscript(PyObject* self, PyObject* key)
+PyObject* FsdDict_Subscript(PyObject* self, PyObject* key)
 {
 	FsdDict* fsdDict = static_cast<FsdDict*>(self);
 	return fsdDict->GetValue(key);
 }
 
-static int FsdDict_Contains(PyObject *self, PyObject *key)
+int FsdDict_Contains(PyObject *self, PyObject *key)
 {
 	FsdDict* fsdDict = static_cast<FsdDict*>(self);
 

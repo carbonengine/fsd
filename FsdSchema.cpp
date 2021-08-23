@@ -572,7 +572,7 @@ bool CreateSchema(PyObject* pySchema, FsdSchemaAttributes &result, unsigned int 
 	{
 		return CreateObjectSchema(pySchema, result, argID);
 	}
-	return nullptr;
+	return false;
 }
 
 bool BlueExtractArgumentImpl(PyObject* argument, FsdSchemaAttributes &result, unsigned int argID, std::false_type isBlueType)

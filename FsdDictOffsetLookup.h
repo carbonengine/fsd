@@ -26,7 +26,7 @@ enum OFFSET_LOOKUP_RESULT {
 	OFFSET_LOOKUP_ERROR_NOT_IMPLEMENTED
 };
 
-interface FsdDictOffsetLookup
+struct FsdDictOffsetLookup
 {
 public:
 	virtual ~FsdDictOffsetLookup()

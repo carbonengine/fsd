@@ -5,22 +5,24 @@
 // Copyright:	CCP 2013
 //
 #include "StdAfx.h"
-#include "BlueExposure/include/InterfaceDefinitions.cxx"
 
 #include <functional>
 
 BLUE_REGISTER_GLOBAL_AS_MODULE_OBJECT( "classes", BeClasses );
 
-const char* g_moduleName = "pyFSD";
+const char* g_moduleName = "_pyfsd";
 extern PyTypeObject PyFsdVectorType;
 extern PyTypeObject PyFsdListType;
 extern PyTypeObject PyFsdDictType;
 
 // We do not use the standard module initialization here, so that we can add some extra stuff to the module
-PyMODINIT_FUNC initpyFSD()
+#ifndef _WIN32
+__attribute__((visibility ("default")))
+#endif
+PyMODINIT_FUNC CCP_CONCATENATE( init_pyfsd, CCP_BUILD_FLAVOR )()
 {
 	BeClasses->RegisterClasses(BlueRegistration::GetClassRegs());
-	PyObject* module = Py_InitModule(g_moduleName, NULL);
+	PyObject* module = Py_InitModule( CCP_STRINGIZE( CCP_CONCATENATE( _pyfsd, CCP_BUILD_FLAVOR ) ), NULL );
 
 	BlueRegisterToModule(
 		module,

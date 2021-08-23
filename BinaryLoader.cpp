@@ -8,8 +8,13 @@
 #include "StdAfx.h"
 #include "BinaryLoader.h"
 #include "BinaryLoaderHelper.h"
+#ifndef _WIN32
+#include <locale>
+#include <codecvt>
+#endif
 
-const UINT UTF8 = 65001;
+
+const uint32_t UTF8 = 65001;
 
 PyObject* BinaryLoader::LoadBinaryFromString(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, const char* path)
 {
@@ -67,7 +72,7 @@ PyObject* BinaryLoader::LoadBinaryFromString(const char* data, uint32_t offset, 
 		break;
 	default:
 		std::string error = "unsupported schema type '" + schemaAttributes.schemaTypeAsString + "'";
-		PyErr_Format(PyExc_TypeError, error.c_str());
+		PyErr_SetString(PyExc_TypeError, error.c_str());
 	}
 
 	return retValue;
@@ -143,13 +148,13 @@ PyObject* BinaryLoader::LoadStringFromBinaryString(const char* data, uint32_t of
 
 std::wstring BinaryLoader::CLoadUnicodeStringFromBinaryString(const char* data, uint32_t offset, const char* path, bool &success)
 {
+    std::wstring retVal;
 	std::string sizeString(&data[offset], sizeof(uint32_t));
 	uint32_t stringLength = *reinterpret_cast<const uint32_t*>(sizeString.c_str());
-
+#if _WIN32
 	// WHY IS THERE NO STL UNICODE ENCODING THING?
 	const int requiredBufferSize = MultiByteToWideChar(UTF8, 0, &data[4 + offset], stringLength, nullptr, 0);
 
-	std::wstring retVal;
 	retVal.resize(requiredBufferSize);
 
 	if (MultiByteToWideChar(UTF8, 0, &data[4 + offset], stringLength, &retVal[0], requiredBufferSize) == 0)
@@ -158,6 +163,19 @@ std::wstring BinaryLoader::CLoadUnicodeStringFromBinaryString(const char* data, 
 		success = false;
 		return retVal;
 	}
+#else
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    try
+    {
+        retVal = conv.from_bytes( data + 4 + offset, data + 4 + offset + stringLength );
+    }
+    catch (const std::range_error& error)
+    {
+        PyErr_SetString(PyExc_RuntimeError, error.what());
+        success = false;
+        return retVal;
+    }
+#endif
 	success = true;
 	return retVal;
 }

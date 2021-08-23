@@ -10,7 +10,6 @@
 #define FsdUnsignedIntegerKeyMap_h
 
 #include "BlueExposure/include/BlueExposure.h"
-#include <hash_map>
 
 BLUE_DECLARE( FsdUnsignedIntegerKeyMap );
 
@@ -20,7 +19,7 @@ struct OffsetSize {
 	unsigned size;
 };
 
-typedef stdext::hash_map<unsigned,OffsetSize> UnsignedHashMap;
+typedef std::unordered_map<unsigned, OffsetSize> UnsignedHashMap;
 
 // FwdDecl
 class FsdUnsignedIntegerKeyMapItemsIterator;

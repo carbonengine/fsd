@@ -37,6 +37,7 @@ void FsdVector::Initialize(const char* data, uint32_t offset, const FsdSchemaAtt
 		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector3d*>(m_data));
 		break;
 	case DOUBLE_VECTOR4_TUPLE_SCHEMA_TYPE:
+    default:
 		m_vectorType = FSD_VECTOR4D;
 		m_exposedData = BlueWrapReturnValue(BlueScriptArguments(), *reinterpret_cast<const Vector4d*>(m_data));
 		break;
@@ -86,11 +87,12 @@ PyObject* FsdVector::GetByIndex(uint8_t index)
 	}
 	if (index > length || index < 0)
 	{
-		std::string message = "FsdVector: " + m_schemaAttributes.schemaTypeAsString;
-		message += " trying to get index " + int(originalIndex);
-		message += " of a vector that is " + length;
-		message += " long.";
-		PyErr_SetString(PyExc_IndexError, message.c_str());
+        PyErr_Format(
+            PyExc_IndexError,
+            "FsdVector: %s trying to get index %d of a vector that is %d long.",
+            m_schemaAttributes.schemaTypeAsString.c_str(),
+            int( originalIndex ),
+            int( length ) );
 		return 0;
 	}
 	return GetValueByIndex(index);
@@ -110,8 +112,7 @@ Py_ssize_t FsdVector::GetLength()
 	case FSD_VECTOR4D:
 		return 4;
 	default:
-		std::string message = "pyFSD.FsdVector: Could not determine length of vector with vectorType:" + m_vectorType;
-		PyErr_SetString(PyExc_AttributeError, message.c_str());
+		PyErr_Format(PyExc_AttributeError, "pyFSD.FsdVector: Could not determine length of vector with vectorType: %d", int( m_vectorType ) );
 		return 0;
 
 	}
@@ -179,7 +180,7 @@ PyTypeObject PyFsdVectorType = {
 	FsdVector_new,				/* tp_new */
 };
 
-static PyObject* FsdVector_Dir(PyObject *self, PyObject * args)
+PyObject* FsdVector_Dir(PyObject *self, PyObject * args)
 {
 	return nullptr;
 }
@@ -197,7 +198,7 @@ PyObject* FsdVector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	return (PyObject *)self;
 }
 
-static int FsdVector_init(FsdVector *self, PyObject *args, PyObject *kwds)
+int FsdVector_init(FsdVector *self, PyObject *args, PyObject *kwds)
 {
 	PyErr_SetString(PyExc_NotImplementedError, "pyFSD.FsdVector::__init__  cannot initialize from python");
 	return -1;

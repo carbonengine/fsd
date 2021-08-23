@@ -12,8 +12,6 @@
 #include "StdAfx.h"
 #include "FsdSchema.h"
 #include "FsdList.h"
-#include <unordered_map>
-#include <hash_map>
 #include "FsdUnsignedIntegerKeyMap.h"
 #include "FsdDictOffsetLookup.h"
 
@@ -29,8 +27,6 @@ public:
 
 private:
 	bool FindKeyValueOffset(PyObject* key, FooterOffsetSize &offset) const;
-	
-	uint32_t m_dictLength;
 
 	FsdSchemaAttributes m_schemaAttributes;
 	FsdSchemaAttributes m_valueSchemaAttributes;

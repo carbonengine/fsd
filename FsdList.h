@@ -19,8 +19,7 @@ public:
 	FsdList() :
 		m_data(nullptr),
 		m_path(""),
-		m_listLength(0), 
-		m_itemsAreFixedSize(false)
+		m_listLength(0)
 	{}
 
 	void Initialize(const char* data, uint32_t offset, const FsdSchemaAttributes &schemaAttributes, std::string path);
@@ -34,7 +33,6 @@ private:
 
 	uint32_t m_offset;
 	uint32_t m_listLength;
-	bool m_itemsAreFixedSize;
 
 	std::vector<uint32_t> m_offsetLookup;
 };
