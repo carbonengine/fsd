@@ -11,7 +11,7 @@
 
 #include "Python.h"
 #include "BoolBeResult.h"
-#include "BlueExposure/include/BlueExposure.h"
+#include <BlueExposure.h>
 #include "FsdSchema.h"
 #include "FsdVector.h"
 #include "FsdObject.h"

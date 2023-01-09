@@ -9,7 +9,7 @@
 #ifndef FsdUnsignedIntegerKeyMap_h
 #define FsdUnsignedIntegerKeyMap_h
 
-#include "BlueExposure/include/BlueExposure.h"
+#include <BlueExposure.h>
 
 BLUE_DECLARE( FsdUnsignedIntegerKeyMap );
 
