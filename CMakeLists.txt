@@ -61,14 +61,6 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 
 target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
-if(APPLE)
-    set_target_properties(
-        pyFSD
-        PROPERTIES 
-            PREFIX ""
-            SUFFIX ".so"
-    )
-endif()
 
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
