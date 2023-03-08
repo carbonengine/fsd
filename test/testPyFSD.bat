@@ -1,3 +1,3 @@
 SET PYTHONUSERBASE=%~dp0../..
-..\..\..\..\..\..\..\shared_tools\python\27\python.exe -B test_pyFSD.py
+%CCP_EVE_PERFORCE_BRANCH_PATH%\vendor\python\2.7.1+ccp-stackless\bin\Windows\x64\v141\python.exe -B test_pyFSD.py
 pause
