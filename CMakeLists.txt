@@ -59,10 +59,25 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
         FILES ${_SOURCES}
 )
 
-
 target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
+
+set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; sys.modules['test_pyFSD']=sys;import unittest; print_suite = lambda x: print(x.id()) if not hasattr(x, '__iter__') else [print_suite(x) for x in x];print_suite(unittest.defaultTestLoader.discover('.'))"
+        OUTPUT_VARIABLE PYTHON_TESTS_STR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_STRIP_TRAILING_WHITESPACE
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
+        )
+separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
+foreach(PYTHON_TEST ${PYTHON_TESTS})
+    add_test(NAME ${PYTHON_TEST}
+            COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
+            )
+    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}")
+endforeach()
 
 # Provide an install target if this is the top level project only
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
