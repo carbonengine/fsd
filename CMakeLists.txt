@@ -64,14 +64,14 @@ target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
 set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
+set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
 
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -m unittest discover -s ./test -p "test_*.py"
-        OUTPUT_VARIABLE PYTHON_TESTS_STR
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_STRIP_TRAILING_WHITESPACE
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
         )
+
 separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
 foreach(PYTHON_TEST ${PYTHON_TESTS})
     add_test(NAME ${PYTHON_TEST}
