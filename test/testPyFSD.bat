@@ -1,3 +1,5 @@
 SET PYTHONUSERBASE=%~dp0../..
-%CCP_EVE_PERFORCE_BRANCH_PATH%\vendor\python\2.7.1+ccp-stackless\bin\Windows\x64\v141\python.exe -B test_pyFSD.py
+cd ..\
+::python %CCP_EVE_PERFORCE_BRANCH_PATH%\updateBinaries.py -p Windows -a x64 client
+%CCP_EVE_PERFORCE_BRANCH_PATH%\eve\client\pythonInterpreter.bat %cd%\test\test_pyFSD.py
 pause

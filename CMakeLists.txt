@@ -61,25 +61,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 
-set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
-
-set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
-set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_STRIP_TRAILING_WHITESPACE
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
-        )
-
-separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
-foreach(PYTHON_TEST ${PYTHON_TESTS})
-    add_test(NAME ${PYTHON_TEST}
-            COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
-            )
-    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}")
-endforeach()
+set_target_properti
+execute_process(COMMAND cmd /C "${CMAKE_CURRENT_SOURCE_DIR}/test/testPyFSD.bat")
 
 # Provide an install target if this is the top level project only
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
