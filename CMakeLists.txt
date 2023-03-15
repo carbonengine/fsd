@@ -61,8 +61,11 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 
-set_target_properti
-execute_process(COMMAND cmd /C "${CMAKE_CURRENT_SOURCE_DIR}/test/testPyFSD.bat")
+set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
+
+if (Win32)
+    execute_process(COMMAND cmd /C "${CMAKE_CURRENT_SOURCE_DIR}/test/testPyFSD.bat")
+endif()
 
 # Provide an install target if this is the top level project only
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
