@@ -63,7 +63,7 @@ target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
-if (Win32)
+if (WIN32)
     execute_process(COMMAND cmd /C "${CMAKE_CURRENT_SOURCE_DIR}/test/testPyFSD.bat")
 endif()
 
