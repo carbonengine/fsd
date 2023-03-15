@@ -64,7 +64,9 @@ target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
 set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; sys.modules['test_pyFSD']=sys;import unittest; print_suite = lambda x: print(x.id()) if not hasattr(x, '__iter__') else [print_suite(x) for x in x];print_suite(unittest.defaultTestLoader.discover('.'))"
+
+
+execute_process(COMMAND ${PYTHON_EXECUTABLE} -m unittest discover -s ./test -p "test_*.py"
         OUTPUT_VARIABLE PYTHON_TESTS_STR
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_STRIP_TRAILING_WHITESPACE
