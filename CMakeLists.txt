@@ -63,9 +63,6 @@ target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
 
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
-if (WIN32)
-    execute_process(COMMAND cmd /C "${CMAKE_CURRENT_SOURCE_DIR}/test/testPyFSD.bat")
-endif()
 
 # Provide an install target if this is the top level project only
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -94,4 +91,25 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
             PATTERN "*.py"
             PATTERN "package.yaml"
             )
+endif()
+
+if(WIN32)
+    set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
+    set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import unittest;[(item.id() if not hasattr(item, '__iter__') else [_ for _ in item] and None) for item in unittest.defaultTestLoader.discover('.')]"
+            OUTPUT_VARIABLE PYTHON_TESTS_STR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test
+            )
+    separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
+    foreach(PYTHON_TEST ${PYTHON_TESTS})
+        add_test(NAME ${PYTHON_TEST}
+                COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python
+                )
+        set_tests_properties(${PYTHON_TEST} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>"
+                )
+    endforeach()
 endif()
