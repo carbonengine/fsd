@@ -1,6 +1,5 @@
 import unittest
 
-
 def _print_suite(test_suite_or_iterable):
     if not hasattr(test_suite_or_iterable, '__iter__'):
         print(test_suite_or_iterable.id())

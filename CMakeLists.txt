@@ -100,15 +100,17 @@ if(WIN32)
             OUTPUT_VARIABLE PYTHON_TESTS_STR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
             )
+
     message(STATUS "Python tests string: ${PYTHON_TESTS_STR}")
+
     separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
     foreach(PYTHON_TEST ${PYTHON_TESTS})
         message(STATUS "Python test: ${PYTHON_TEST}")
         add_test(NAME ${PYTHON_TEST}
                 COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
                 )
     endforeach()
 endif()
