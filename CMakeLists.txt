@@ -101,11 +101,14 @@ if(WIN32)
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            RESULT_VARIABLE MYERR
+            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
+            ERROR_VARIABLE PYTHON_TEST_DISCOVERY_ERRORS
             COMMAND_ECHO STDOUT
             )
 
-    message(STATUS "${MYERR}")
+    if(${PYTHON_TEST_DISCOVERY_RETVAL})
+        message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
+    endif()
     message(STATUS "Python tests string: ${PYTHON_TESTS_STR}")
 
     separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
