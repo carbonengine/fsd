@@ -94,15 +94,18 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 if(WIN32)
-    set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
-    set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
+    include(CTest)
+    set(PYTHON_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
     execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
             OUTPUT_VARIABLE PYTHON_TESTS_STR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+            RESULT_VARIABLE MYERR
+            COMMAND_ECHO STDOUT
             )
 
+    message(STATUS "${MYERR}")
     message(STATUS "Python tests string: ${PYTHON_TESTS_STR}")
 
     separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
