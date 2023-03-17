@@ -1,4 +1,6 @@
 import unittest
+import sys
+sys.modules['pyFSD'] = sys
 
 def _print_suite(test_suite_or_iterable):
     if not hasattr(test_suite_or_iterable, '__iter__'):
