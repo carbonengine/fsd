@@ -120,5 +120,7 @@ if(WIN32)
                 COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
                 )
+        set_tests_properties(${PYTHON_TEST} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;")
     endforeach()
 endif()
