@@ -121,6 +121,6 @@ if(WIN32)
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
                 )
         set_tests_properties(${PYTHON_TEST} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>")
+                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>\\\;${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest/test")
     endforeach()
 endif()
