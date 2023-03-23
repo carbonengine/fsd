@@ -102,7 +102,8 @@ if(WIN32)
     message("Update Binaries path = ${PYTHON_EXECUTABLE} ${update_binaries_path}")
     message("Update Binaries command = ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Dev client")
     execute_process(
-            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} client -v
+            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path}  -p Windows -a x64 -t v141 -e Dev client -v
+            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path}  -p Windows -a x64 -t v141 -e Deploy client -v
     )
 
     set(PYTHON_INTERPRETER_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
