@@ -99,7 +99,8 @@ if(WIN32)
     file(TO_NATIVE_PATH "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe" PYTHON_EXECUTABLE)
     set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
     file(TO_NATIVE_PATH  "${BRANCH_ROOT_DIR}/updateBinaries.py" update_binaries_path)
-    message("ASDF ${PYTHON_EXECUTABLE} ${update_binaries_path}")
+    message("Update Binaries path = ${PYTHON_EXECUTABLE} ${update_binaries_path}")
+    message("Update Binaries command = ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Dev client")
     execute_process(
             COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Dev client
             COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Deploy client
@@ -124,7 +125,6 @@ if(WIN32)
     if(${PYTHON_TEST_DISCOVERY_RETVAL})
         message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
     endif()
-    message(STATUS "Python tests string: ${PYTHON_TESTS_STR}")
 
     separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
     foreach(PYTHON_TEST ${PYTHON_TESTS})
