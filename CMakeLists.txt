@@ -106,13 +106,13 @@ if(WIN32)
             COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} client
     )
 
-    set(PYTHON_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
+    set(PYTHON_INTERPRETER_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
 
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import blue"
+    execute_process(COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -c "import blue"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
             RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
             COMMAND_ECHO STDOUT)
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
+    execute_process(COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
             OUTPUT_VARIABLE PYTHON_TESTS_STR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE
@@ -130,7 +130,7 @@ if(WIN32)
     foreach(PYTHON_TEST ${PYTHON_TESTS})
         message(STATUS "Python test: ${PYTHON_TEST}")
         add_test(NAME ${PYTHON_TEST}
-                COMMAND ${PYTHON_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
+                COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
                 )
         set_tests_properties(${PYTHON_TEST} PROPERTIES
