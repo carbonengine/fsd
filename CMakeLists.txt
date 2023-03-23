@@ -95,9 +95,22 @@ endif()
 
 if(WIN32)
     include(CTest)
-    #set(PYTHON_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
-    set(PYTHON_EXECUTABLE "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe")
+    #run updateBinaries
+    file(TO_NATIVE_PATH "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe" PYTHON_EXECUTABLE)
     set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
+    file(TO_NATIVE_PATH  "${BRANCH_ROOT_DIR}/updateBinaries.py" update_binaries_path)
+    message("ASDF ${PYTHON_EXECUTABLE} ${update_binaries_path}")
+    execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Dev client
+            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Deploy client
+    )
+
+    set(PYTHON_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
+
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import blue"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
+            COMMAND_ECHO STDOUT)
     execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
             OUTPUT_VARIABLE PYTHON_TESTS_STR
             OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -121,6 +134,6 @@ if(WIN32)
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
                 )
         set_tests_properties(${PYTHON_TEST} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>\\\;${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest/test")
+                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>")
     endforeach()
 endif()
