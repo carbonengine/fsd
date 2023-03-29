@@ -95,45 +95,34 @@ endif()
 
 if(WIN32)
     include(CTest)
-    #run updateBinaries
-    file(TO_NATIVE_PATH "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/Windows/x64/v141/python.exe" PYTHON_EXECUTABLE)
-    set(ENV{PYTHONPATH} "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
-    file(TO_NATIVE_PATH  "${BRANCH_ROOT_DIR}/updateBinaries.py" update_binaries_path)
-    message("Update Binaries path = ${PYTHON_EXECUTABLE} ${update_binaries_path}")
-    message("Update Binaries command = ${PYTHON_EXECUTABLE} ${update_binaries_path} -p Windows -a x64 -t v141 -e Dev client")
-    execute_process(
-            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path}  -p Windows -a x64 -t v141 -e Dev client -v
-            COMMAND ${PYTHON_EXECUTABLE} ${update_binaries_path}  -p Windows -a x64 -t v141 -e Deploy client -v
-    )
-
-    set(PYTHON_INTERPRETER_EXECUTABLE ${BRANCH_ROOT_DIR}/eve/client/bin/x64/ExeFileConsole.exe @${BRANCH_ROOT_DIR}/eve/client/libDefault.args @${BRANCH_ROOT_DIR}/eve/client/resDefault.args /py)
-
-    execute_process(COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -c "import blue"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
-            COMMAND_ECHO STDOUT)
-    execute_process(COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -c "import ctesthelper;ctesthelper.discover_tests()"
-            OUTPUT_VARIABLE PYTHON_TESTS_STR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
-            ERROR_VARIABLE PYTHON_TEST_DISCOVERY_ERRORS
-            COMMAND_ECHO STDOUT
+    add_custom_command(TARGET pyFSD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/python27.dll"
+            $<TARGET_FILE_DIR:pyFSD>
+            )
+    add_custom_command(TARGET pyFSD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${BRANCH_ROOT_DIR}/vendor/CCP/Blue/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/$<IF:$<CONFIG:Release>,blue.dll,blue_$<LOWER_CASE:$<CONFIG>>.dll>"
+            $<TARGET_FILE_DIR:pyFSD>
+            )
+    # Copy required binaries for pyFSD tests into pyFSDTest folder (Exefile/ExefileConsole)
+    add_custom_command(TARGET pyFSD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${BRANCH_ROOT_DIR}/vendor/CCP/Exefile/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/Exefile.exe"
+            $<TARGET_FILE_DIR:pyFSD>
+            )
+    add_custom_command(TARGET pyFSD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${BRANCH_ROOT_DIR}/vendor/CCP/ExefileConsole/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/ExefileConsole.exe"
+            $<TARGET_FILE_DIR:pyFSD>
             )
 
-    if(${PYTHON_TEST_DISCOVERY_RETVAL})
-        message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
-    endif()
-
-    separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
-    foreach(PYTHON_TEST ${PYTHON_TESTS})
-        message(STATUS "Python test: ${PYTHON_TEST}")
-        add_test(NAME ${PYTHON_TEST}
-                COMMAND ${PYTHON_INTERPRETER_EXECUTABLE} -m unittest -v ${PYTHON_TEST}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-                )
-        set_tests_properties(${PYTHON_TEST} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;$<TARGET_FILE_DIR:pyFSD>")
-    endforeach()
+    # Discover and run Python tests as a single CTest test.
+    set(EXEFILE_CONSOLE_EXECUTABLE "$<TARGET_FILE_DIR:pyFSD>/ExefileConsole.exe")
+    add_test(NAME PythonTests
+            COMMAND ${EXEFILE_CONSOLE_EXECUTABLE} /buildflavor=$<LOWER_CASE:$<CONFIG>> /lib=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;${CMAKE_CURRENT_SOURCE_DIR}/python /bin=$<TARGET_FILE_DIR:pyFSD> /py -m unittest discover -v .
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+            COMMAND_EXPAND_LISTS
+            )
 endif()
+
