@@ -23,11 +23,11 @@ struct KeyOffsetSize {
 typedef std::pair<unsigned, OffsetSize> KeyOffsetSizeItem;
 
 void FsdUnsignedIntegerKeyMap::Initialize( const std::string& data ) {
-	size_t size = (data.length()) / sizeof(KeyOffsetSize);
+	size_t size = data.length() / sizeof(KeyOffsetSize);
 
 	for( size_t i = 0; i < size; i++ )
 	{
-		KeyOffsetSize* castKey = (KeyOffsetSize*)(&data[ (i * sizeof(KeyOffsetSize)) ]);
+		KeyOffsetSize* castKey = (KeyOffsetSize*)(&data[ i * sizeof(KeyOffsetSize) ]);
 
 		OffsetSize os;
 		os.offset = castKey->offset;
