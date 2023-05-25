@@ -139,8 +139,7 @@ static PySequenceMethods fsdVectorSequenceMethods = {
 };
 
 PyTypeObject PyFsdVectorType = {
-	PyObject_HEAD_INIT(NULL)
-	0,
+	PyVarObject_HEAD_INIT(NULL, 0)
 	"pyFSD.FsdVector",
 	sizeof(FsdVector),
 	0,

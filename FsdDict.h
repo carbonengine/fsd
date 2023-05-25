@@ -12,7 +12,6 @@
 #include "StdAfx.h"
 #include "FsdSchema.h"
 #include "FsdList.h"
-#include "FsdUnsignedIntegerKeyMap.h"
 #include "FsdDictOffsetLookup.h"
 
 class FsdDict : public PyObject

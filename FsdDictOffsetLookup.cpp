@@ -59,7 +59,7 @@ FastLoadingHashedOffsetLookup<KEY_TYPE>::~FastLoadingHashedOffsetLookup()
 template<typename KEY_TYPE>
 OFFSET_LOOKUP_RESULT FastLoadingHashedOffsetLookup<KEY_TYPE>::GetOffsetAndSize(PyObject* key, FooterOffsetSize &fos)
 {
-	KEY_TYPE convertedKey(PyInt_AsLong(key));
+	KEY_TYPE convertedKey(PyLong_AsLong(key));
 	
 	if (PyErr_Occurred() != nullptr)
 	{
@@ -77,7 +77,7 @@ OFFSET_LOOKUP_RESULT FastLoadingHashedOffsetLookup<KEY_TYPE>::GetOffsetAndSize(P
 template<typename KEY_TYPE>
 bool FastLoadingHashedOffsetLookup<KEY_TYPE>::Contains(PyObject* key)
 {
-	KEY_TYPE convertedKey( PyInt_AsLong(key) );
+	KEY_TYPE convertedKey( PyLong_AsLong(key) );
 
 	// We go in here if the key isn't an int
 	if (convertedKey == -1 && PyErr_Occurred() != nullptr)
@@ -138,7 +138,7 @@ SemiFastStringLoadingHashedOffsetLookup::~SemiFastStringLoadingHashedOffsetLooku
 
 OFFSET_LOOKUP_RESULT SemiFastStringLoadingHashedOffsetLookup::GetOffsetAndSize(PyObject* key, FooterOffsetSize &fos)
 {
-	std::string convertedKey = PyString_AsString(key);
+	std::string convertedKey = PyUnicode_AsUTF8(key);
 
 	if (PyErr_Occurred() != nullptr)
 	{
@@ -155,7 +155,7 @@ OFFSET_LOOKUP_RESULT SemiFastStringLoadingHashedOffsetLookup::GetOffsetAndSize(P
 
 bool SemiFastStringLoadingHashedOffsetLookup::Contains(PyObject* key)
 {
-	char* keyAsCharArray = PyString_AsString(key);
+	const char* keyAsCharArray = PyUnicode_AsUTF8(key);
 	
 	// We go in here if the key isn't an int
 	if (keyAsCharArray == nullptr && PyErr_Occurred() != nullptr)
