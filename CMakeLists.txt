@@ -102,7 +102,7 @@ if(WIN32)
             )
     add_custom_command(TARGET pyFSD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/CCP/Blue/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/$<IF:$<CONFIG:Release>,blue.dll,blue_$<LOWER_CASE:$<CONFIG>>.dll>"
+            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-blue/v1.0.0-0-g430c691/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/$<IF:$<CONFIG:Release>,blue.dll,blue_$<LOWER_CASE:$<CONFIG>>.dll>"
             $<TARGET_FILE_DIR:pyFSD>
             )
     # Copy required binaries for pyFSD tests into pyFSDTest folder (Exefile/ExefileConsole)
@@ -125,4 +125,3 @@ if(WIN32)
             COMMAND_EXPAND_LISTS
             )
 endif()
-
