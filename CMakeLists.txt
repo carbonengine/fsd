@@ -108,12 +108,12 @@ if(WIN32)
     # Copy required binaries for pyFSD tests into pyFSDTest folder (Exefile/ExefileConsole)
     add_custom_command(TARGET pyFSD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/CCP/Exefile/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/Exefile.exe"
+            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-exefile/v1.0.0-0-gd72aa73/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/Exefile.exe"
             $<TARGET_FILE_DIR:pyFSD>
             )
     add_custom_command(TARGET pyFSD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/CCP/ExefileConsole/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/ExefileConsole.exe"
+            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-exefileconsole/v1.0.0-0-g54c0c96/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/ExefileConsole.exe"
             $<TARGET_FILE_DIR:pyFSD>
             )
 
