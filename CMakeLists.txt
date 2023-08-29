@@ -95,33 +95,13 @@ endif()
 
 if(WIN32)
     include(CTest)
-    add_custom_command(TARGET pyFSD POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/python/2.7.1+ccp-stackless/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/python27.dll"
-            $<TARGET_FILE_DIR:pyFSD>
-            )
-    add_custom_command(TARGET pyFSD POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-blue/v1.0.0-0-g430c691/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/$<IF:$<CONFIG:Release>,blue.dll,blue_$<LOWER_CASE:$<CONFIG>>.dll>"
-            $<TARGET_FILE_DIR:pyFSD>
-            )
-    # Copy required binaries for pyFSD tests into pyFSDTest folder (Exefile/ExefileConsole)
-    add_custom_command(TARGET pyFSD POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-exefile/v1.0.0-0-gd72aa73/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/Exefile.exe"
-            $<TARGET_FILE_DIR:pyFSD>
-            )
-    add_custom_command(TARGET pyFSD POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${BRANCH_ROOT_DIR}/vendor/github.com/ccpgames/carbon-exefileconsole/v1.0.0-0-g54c0c96/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/ExefileConsole.exe"
-            $<TARGET_FILE_DIR:pyFSD>
-            )
 
-    # Discover and run Python tests as a single CTest test.
-    set(EXEFILE_CONSOLE_EXECUTABLE "$<TARGET_FILE_DIR:pyFSD>/ExefileConsole.exe")
-    add_test(NAME PythonTests
-            COMMAND ${EXEFILE_CONSOLE_EXECUTABLE} /buildflavor=$<LOWER_CASE:$<CONFIG>> /lib=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;${CMAKE_CURRENT_SOURCE_DIR}/python /bin=$<TARGET_FILE_DIR:pyFSD> /py -m unittest discover -v .
+    set(PYTHON_INTERPRETER_PATH "${BRANCH_ROOT_DIR}/eve/client/pythonInterpreter.bat")
+    add_test(NAME "PythonTests"
+            COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover -v
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
             COMMAND_EXPAND_LISTS
             )
+    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
+
 endif()
