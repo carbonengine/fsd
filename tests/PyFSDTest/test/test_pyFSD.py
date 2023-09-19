@@ -8,6 +8,12 @@ signedKeyOffsetType = struct.Struct("iII")
 
 class ModuleTests(unittest.TestCase):
 
+    def testLengthPrefixedInput(self):
+        d = pyFSD.FsdUnsignedIntegerKeyMap(b'\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\r\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00')
+        self.assertEqual(d.Get(13), (4, 4))
+        e = pyFSD.FsdUnsignedIntegerKeyMap(b'\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\r\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00')
+        self.assertEqual(e.Get(13), (4, 4))
+
     def testSingleEntryLength(self):
         d = pyFSD.FsdUnsignedIntegerKeyMap(keyOffsetType.pack(1, 2, 3))
 

@@ -96,7 +96,7 @@ endif()
 
 if(WIN32)
     include(CTest)
-    execute_process(COMMAND ${Python_EXECUTABLE} -c "import sys; sys.modules['pyFSD']=sys;import unittest; print_suite = lambda x: (print(x._exception), sys.exit(1)) if hasattr(x, '_exception') else print(x.id()) if not hasattr(x, '__iter__') else [print_suite(x) for x in x];print_suite(unittest.defaultTestLoader.discover('.'))"
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; sys.modules['pyFSD']=sys;import unittest; print_suite = lambda x: (print(x._exception), sys.exit(1)) if hasattr(x, '_exception') else print(x.id()) if not hasattr(x, '__iter__') else [print_suite(x) for x in x];print_suite(unittest.defaultTestLoader.discover('.'))"
         OUTPUT_VARIABLE PYTHON_TESTS_STR
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_STRIP_TRAILING_WHITESPACE
@@ -113,39 +113,8 @@ if(WIN32)
         message(STATUS "Found test ${PYTHON_TEST}")
         add_test(NAME ${PYTHON_TEST}
             COMMAND ${EXEFILE_EXECUTABLE} "@${BRANCH_ROOT_DIR}/eve/client/libDefault.args" "@${BRANCH_ROOT_DIR}/eve/client/resDefault.args" /buildflavor=$<LOWER_CASE:$<CONFIG>> /py -m unittest -v ${PYTHON_TEST}
-#            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest
             WORKING_DIRECTORY $<TARGET_FILE_DIR:pyFSD>
             )
         set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python")
     endforeach()
-
-#    add_custom_command(TARGET pyFSD POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#            "${BRANCH_ROOT_DIR}/vendor/python/3.8.1+ccp-stackless/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/python38.dll"
-#            $<TARGET_FILE_DIR:pyFSD>
-#            )
-#    add_custom_command(TARGET pyFSD POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#            "${BRANCH_ROOT_DIR}/vendor/CCP/Blue/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/$<IF:$<CONFIG:Release>,blue.dll,blue_$<LOWER_CASE:$<CONFIG>>.dll>"
-#            $<TARGET_FILE_DIR:pyFSD>
-#            )
-#    # Copy required binaries for pyFSD tests into pyFSDTest folder (Exefile/ExefileConsole)
-#    add_custom_command(TARGET pyFSD POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#            "${BRANCH_ROOT_DIR}/vendor/CCP/Exefile/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/Exefile.exe"
-#            $<TARGET_FILE_DIR:pyFSD>
-#            )
-#    add_custom_command(TARGET pyFSD POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#            "${BRANCH_ROOT_DIR}/vendor/CCP/ExefileConsole/bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/ExefileConsole.exe"
-#            $<TARGET_FILE_DIR:pyFSD>
-#            )
-#
-#    # Discover and run Python tests as a single CTest test.
-#    set(EXEFILE_CONSOLE_EXECUTABLE "$<TARGET_FILE_DIR:pyFSD>/ExefileConsole.exe")
-#    add_test(NAME PythonTests
-#            COMMAND ${EXEFILE_CONSOLE_EXECUTABLE} /buildflavor=$<LOWER_CASE:$<CONFIG>> /lib=${BRANCH_ROOT_DIR}/carbon/common/stdlib\\\;${CMAKE_CURRENT_SOURCE_DIR}/python /bin=$<TARGET_FILE_DIR:pyFSD> /py -m unittest discover -v .
-#            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-#            COMMAND_EXPAND_LISTS
-#            )
 endif()

@@ -44,6 +44,12 @@ int FsdUnsignedIntegerKeyMap_init(FsdUnsignedIntegerKeyMap* self, PyObject* args
 	auto data = (const char*)bytes.buf;
     auto size = bytes.len / sizeof(KeyOffsetSize);
 
+    // Sometimes the datastream is prefixed with some irrelevant data.
+    // For example, there is a Python construct called `binaryRepresenter` that is used to generate input data for this
+    // type, and that can be prefixed with a 32-bit length value. We therefore need to adjust the start of input data
+    // stream.
+    data += (bytes.len % sizeof(KeyOffsetSize));
+
     CCP_ASSERT( PyBuffer_IsContiguous( &bytes, 'A' ) == 1 );
 
     self->lookup.reserve(size);
