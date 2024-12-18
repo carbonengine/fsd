@@ -96,25 +96,13 @@ endif()
 
 if(WIN32)
     include(CTest)
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; sys.modules['pyFSD']=sys;import unittest; print_suite = lambda x: (print(x._exception), sys.exit(1)) if hasattr(x, '_exception') else print(x.id()) if not hasattr(x, '__iter__') else [print_suite(x) for x in x];print_suite(unittest.defaultTestLoader.discover('.'))"
-        OUTPUT_VARIABLE PYTHON_TESTS_STR
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_STRIP_TRAILING_WHITESPACE
-        RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
-        ERROR_VARIABLE PYTHON_TEST_DISCOVERY_ERRORS
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest
-        )
-    if(${PYTHON_TEST_DISCOVERY_RETVAL})
-        message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
-    endif()
-    separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
-    set(EXEFILE_EXECUTABLE "${BRANCH_ROOT_DIR}/eve/client/bin/x64/exefileconsole.exe")
-    foreach(PYTHON_TEST ${PYTHON_TESTS})
-        message(STATUS "Found test ${PYTHON_TEST}")
-        add_test(NAME ${PYTHON_TEST}
-            COMMAND ${EXEFILE_EXECUTABLE} "@${BRANCH_ROOT_DIR}/eve/client/libDefault.args" "@${BRANCH_ROOT_DIR}/eve/client/resDefault.args" /buildflavor=$<LOWER_CASE:$<CONFIG>> /py -m unittest -v ${PYTHON_TEST}
-            WORKING_DIRECTORY $<TARGET_FILE_DIR:pyFSD>
+
+    set(PYTHON_INTERPRETER_PATH "${BRANCH_ROOT_DIR}/eve/client/pythonInterpreter.bat")
+    add_test(NAME "PythonTests"
+            COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover -v
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+            COMMAND_EXPAND_LISTS
             )
-        set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/tests/PyFSDTest\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python")
-    endforeach()
+    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
+
 endif()
