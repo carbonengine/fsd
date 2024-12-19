@@ -96,13 +96,11 @@ endif()
 
 if(WIN32)
     include(CTest)
-
     set(PYTHON_INTERPRETER_PATH "${BRANCH_ROOT_DIR}/eve/client/pythonInterpreter.bat")
     add_test(NAME "PythonTests"
             COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover -v
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
             COMMAND_EXPAND_LISTS
             )
-    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
-
+    set_tests_properties(PythonTests PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
 endif()
