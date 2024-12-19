@@ -96,8 +96,7 @@ static PySequenceMethods fsdListSequenceMethods = {
 };
 
 PyTypeObject PyFsdListType = {
-	PyObject_HEAD_INIT(NULL)
-	0,
+	PyVarObject_HEAD_INIT(NULL, 0)
 	"pyFSD.FsdList",
 	sizeof(FsdList),
 	0,

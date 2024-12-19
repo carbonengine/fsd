@@ -41,7 +41,7 @@ PyObject* FsdDict::GetValue(PyObject* key) const
 	FooterOffsetSize offsetAndSize;
 
 	PyObject* keyRepresentation = PyObject_Repr(key);
-	const char* s = PyString_AsString(keyRepresentation);
+	const char* s = PyUnicode_AsUTF8(keyRepresentation);
 
 	if (!FindKeyValueOffset(key, offsetAndSize))
 	{
@@ -108,8 +108,7 @@ static PySequenceMethods fsdDictSequenceMethods =
 };
 
 PyTypeObject PyFsdDictType = {
-	PyObject_HEAD_INIT(NULL)
-	0,
+	PyVarObject_HEAD_INIT(NULL, 0)
 	"pyFSD.FsdDict",
 	sizeof(FsdDict),
 	0,
@@ -128,7 +127,7 @@ PyTypeObject PyFsdDictType = {
 	0,								/* tp_getattro       */
 	0,								/* tp_setattro       */
 	0,								/* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_SEQUENCE_IN,				/* tp_flags          */
+	Py_TPFLAGS_DEFAULT,				/* tp_flags          */
 	0,								/* tp_doc            */
 	0,								/* tp_traverse       */
 	0,								/* tp_clear          */

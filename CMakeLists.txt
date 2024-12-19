@@ -23,6 +23,9 @@ find_package(Blue CONFIG REQUIRED NO_CMAKE_PATH)
 
 ccp_add_library(pyFSD SHARED)
 target_link_libraries(pyFSD PRIVATE Blue)
+if(WIN32)
+    set_target_properties(pyFSD PROPERTIES SUFFIX ".pyd")
+endif()
 
 target_sources(pyFSD PRIVATE
     BinaryLoader.cpp
@@ -43,8 +46,6 @@ target_sources(pyFSD PRIVATE
     FsdSchema.h
     FsdSchema_Blue.cpp
     FsdUnsignedIntegerKeyMap.cpp
-    FsdUnsignedIntegerKeyMap.h
-    FsdUnsignedIntegerKeyMap_Blue.cpp
     FsdVector.cpp
     FsdVector.h
     SchemaTypes.cpp
@@ -95,13 +96,11 @@ endif()
 
 if(WIN32)
     include(CTest)
-
     set(PYTHON_INTERPRETER_PATH "${BRANCH_ROOT_DIR}/eve/client/pythonInterpreter.bat")
     add_test(NAME "PythonTests"
             COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover -v
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
             COMMAND_EXPAND_LISTS
             )
-    set_tests_properties(${PYTHON_TEST} PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
-
+    set_tests_properties(PythonTests PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
 endif()
