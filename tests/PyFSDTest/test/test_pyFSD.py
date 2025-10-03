@@ -54,6 +54,15 @@ class ModuleTests(unittest.TestCase):
 
         self.assertEqual(idx, 1)
 
+    def testGeneratorExhaustion(self):
+        d = pyFSD.FsdUnsignedIntegerKeyMap(keyOffsetType.pack(1, 2, 3) + keyOffsetType.pack(4, 5, 6))
+        self.assertEqual(len(d), 2)
+        l = list(d)
+        self.assertEqual(len(l), 2)
+        l = [x for x in d]
+        self.assertEqual(len(l), 2)
+
+
 
 if __name__ == '__main__':
     unittest.main()

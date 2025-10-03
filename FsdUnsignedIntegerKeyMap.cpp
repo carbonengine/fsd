@@ -110,6 +110,7 @@ PyObject* FsdUnsignedIntegerKeyMap_iternext( FsdUnsignedIntegerKeyMap* self )
 {
     if ( self->lookup.cend() == self->cur ) {
         PyErr_SetString(PyExc_StopIteration, "");
+		self->cur = self->lookup.cbegin();
         return nullptr;
     }
 
