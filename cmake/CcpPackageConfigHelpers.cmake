@@ -1,0 +1,57 @@
+# Copyright © 2025 CCP ehf.
+
+function(configure_ccp_vendor_config_file)
+    cmake_parse_arguments(CCP_PACKAGE_CONFIG
+        "EXPORT_DLL"
+        "TARGET;DESTINATION"
+        "DEPENDENCIES;CONFIGURATIONS"
+        ${ARGN}
+    )
+
+    if(NOT CCP_PACKAGE_CONFIG_CONFIGURATIONS)
+        set(CCP_PACKAGE_CONFIG_CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES})
+    endif()
+
+    set(CCP_PACKAGE_CONFIG_TARGET_DEPENDENCIES "")
+    foreach(_DEP ${CCP_PACKAGE_CONFIG_DEPENDENCIES})
+        string(APPEND CCP_PACKAGE_CONFIG_TARGET_DEPENDENCIES
+            "find_dependency(${_DEP} REQUIRED CONFIG)\n"
+        )
+    endforeach()
+
+    get_target_property(CCP_PACKAGE_CONFIG_TARGET_TYPE
+        ${CCP_PACKAGE_CONFIG_TARGET} TYPE
+    )
+    if(CCP_PACKAGE_CONFIG_TARGET_TYPE STREQUAL "STATIC_LIBRARY")
+        set(CCP_PACKAGE_CONFIG_TARGET_TYPE STATIC)
+    elseif(CCP_PACKAGE_CONFIG_TARGET_TYPE STREQUAL "SHARED_LIBRARY")
+        set(CCP_PACKAGE_CONFIG_TARGET_TYPE SHARED)
+    endif()
+
+    foreach(_PROPERTY
+        INTERFACE_COMPILE_DEFINITIONS
+        INTERFACE_LINK_LIBRARIES
+        INTERFACE_INCLUDE_DIRECTORIES
+    )
+        get_target_property(CCP_PACKAGE_CONFIG_TARGET_${_PROPERTY}
+            ${CCP_PACKAGE_CONFIG_TARGET} ${_PROPERTY}
+        )
+        if(NOT CCP_PACKAGE_CONFIG_TARGET_${_PROPERTY})
+            set(CCP_PACKAGE_CONFIG_TARGET_${_PROPERTY} "")
+        endif()
+    endforeach()
+
+    get_target_property(CCP_PACKAGE_CONFIG_TARGET_FILE_NAME
+        ${CCP_PACKAGE_CONFIG_TARGET} OUTPUT_NAME
+    )
+    if(NOT CCP_PACKAGE_CONFIG_TARGET_FILE_NAME)
+        set(CCP_PACKAGE_CONFIG_TARGET_FILE_NAME ${CCP_PACKAGE_CONFIG_TARGET})
+    endif()
+
+    configure_file(
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/templatePackageConfig.cmake.in"
+        "${CCP_PACKAGE_CONFIG_DESTINATION}"
+        NEWLINE_STYLE UNIX
+        @ONLY
+    )
+endfunction()
