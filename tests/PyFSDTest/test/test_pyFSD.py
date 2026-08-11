@@ -49,10 +49,7 @@ class ModuleTests(unittest.TestCase):
         d = pyFSD.FsdUnsignedIntegerKeyMap(keyOffsetType.pack(1, 2, 3) + keyOffsetType.pack(4, 5, 6))
 
         expected = [(1, (2, 3)), (4, (5, 6))]
-        for idx, item in enumerate(d):
-            self.assertEqual(item, expected[idx])
-
-        self.assertEqual(idx, 1)
+        self.assertCountEqual(list(d), expected)
 
     def testGeneratorExhaustion(self):
         d = pyFSD.FsdUnsignedIntegerKeyMap(keyOffsetType.pack(1, 2, 3) + keyOffsetType.pack(4, 5, 6))

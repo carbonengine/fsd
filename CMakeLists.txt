@@ -1,33 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(pyFSD VERSION 1.0.0)
 
-if(NOT DEFINED ENV{CCP_EVE_PERFORCE_BRANCH_PATH})
-    message(FATAL_ERROR "Missing required environment variable CCP_EVE_PERFORCE_BRANCH_PATH")
-elseif(NOT IS_ABSOLUTE $ENV{CCP_EVE_PERFORCE_BRANCH_PATH})
-    message(FATAL_ERROR "CCP_EVE_PERFORCE_BRANCH_PATH needs to be an absolute path")
-elseif(NOT EXISTS $ENV{CCP_EVE_PERFORCE_BRANCH_PATH})
-    message(FATAL_ERROR "CCP_EVE_PERFORCE_BRANCH_PATH is pointing at a non-existing location $ENV{CCP_EVE_PERFORCE_BRANCH_PATH}")
-elseif(NOT IS_DIRECTORY $ENV{CCP_EVE_PERFORCE_BRANCH_PATH})
-    message(FATAL_ERROR "CCP_EVE_PERFORCE_BRANCH_PATH needs to be a directory")
-else()
-    message(STATUS "Using CCP_EVE_PERFORCE_BRANCH_PATH located at $ENV{CCP_EVE_PERFORCE_BRANCH_PATH}")
-endif()
+include(cmake/CcpTargetConfigurations.cmake)
+include(cmake/CcpPackageConfigHelpers.cmake)
+include(cmake/CcpBuildConfigurations.cmake)
 
-file(TO_CMAKE_PATH "$ENV{CCP_EVE_PERFORCE_BRANCH_PATH}" BRANCH_ROOT_DIR)
-list(INSERT CMAKE_MODULE_PATH 0 ${BRANCH_ROOT_DIR}/cmake)
+find_package(carbon-blue REQUIRED CONFIG)
 
-include(CcpGlobalSettings)
-include(CcpPackageConfigHelpers)
-
-find_package(Blue CONFIG REQUIRED NO_CMAKE_PATH)
-
-ccp_add_library(pyFSD SHARED)
-target_link_libraries(pyFSD PRIVATE Blue)
-if(WIN32)
-    set_target_properties(pyFSD PROPERTIES SUFFIX ".pyd")
-endif()
-
-target_sources(pyFSD PRIVATE
+set(SRC_FILES
     BinaryLoader.cpp
     BinaryLoader.h
     BinaryLoaderHelper.h
@@ -54,53 +34,114 @@ target_sources(pyFSD PRIVATE
     StdAfx.h
     pyFSD.cpp
 )
-get_target_property(_SOURCES pyFSD SOURCES)
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}"
-        PREFIX "Sources"
-        FILES ${_SOURCES}
-)
 
+ccp_add_library(pyFSD SHARED ${SRC_FILES})
+target_link_libraries(pyFSD PRIVATE Blue)
+target_include_directories(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_precompile_headers(pyFSD PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
-
 set_target_properties(pyFSD PROPERTIES OUTPUT_NAME "_pyfsd")
 
-
-# Provide an install target if this is the top level project only
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    # Install rule to ensure that our runtime and linker files are in the expected, platform-specific folders
+    option(INSTALL_TO_MONOLITH
+        "Install using the Carbon vendor folder layout for backwards compatibility"
+        OFF
+    )
+
+    if(INSTALL_TO_MONOLITH)
+        set(_LIB_DESTINATION "lib/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}")
+        set(_BIN_DESTINATION "bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}")
+    else()
+        set(_LIB_DESTINATION lib)
+        set(_BIN_DESTINATION bin)
+    endif()
+
     install(
-            TARGETS pyFSD
-            EXPORT pyFSDTargets
-            CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
-            LIBRARY DESTINATION lib/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/
-            ARCHIVE DESTINATION lib/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/
-            RUNTIME DESTINATION bin/${CCP_PLATFORM}/${CCP_ARCHITECTURE}/${CCP_TOOLSET}/
+        TARGETS pyFSD
+        EXPORT pyFSDTargets
+        CONFIGURATIONS ${CMAKE_CONFIGURATION_TYPES}
+        LIBRARY DESTINATION ${_LIB_DESTINATION}
+        ARCHIVE DESTINATION ${_LIB_DESTINATION}
+        RUNTIME DESTINATION ${_BIN_DESTINATION}
     )
-    # Install rule for available public headers
-    install(FILES ${PUBLIC_HEADER_FILES} DESTINATION include)
 
-    configure_ccp_vendor_config_file(
-            TARGET pyFSD
-            DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/pyFSDConfig.cmake"
-            DEPENDENCIES ""
+    install(EXPORT pyFSDTargets
+        DESTINATION share/carbon-fsd
+        FILE carbon-fsdConfig.cmake
     )
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pyFSDConfig.cmake DESTINATION .)
 
-    # Install python package
-    install(DIRECTORY python/ DESTINATION python
-            FILES_MATCHING
-            PATTERN "*.py"
-            PATTERN "package.yaml"
-            )
+    install(DIRECTORY python/
+        DESTINATION python
+        FILES_MATCHING
+        PATTERN "*.py"
+        PATTERN "package.yaml"
+    )
 endif()
 
-if(WIN32)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    option(BUILD_TESTING "Build and run tests" ON)
     include(CTest)
-    set(PYTHON_INTERPRETER_PATH "${BRANCH_ROOT_DIR}/eve/client/pythonInterpreter.bat")
-    add_test(NAME "PythonTests"
-            COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover -v
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            COMMAND_EXPAND_LISTS
+
+    if(BUILD_TESTING)
+        find_package(carbon-exefile-interpreter REQUIRED CONFIG)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+        ccp_prepare_interpreter(
+            TARGET pyFSD
+            BUILD_TYPE ${CMAKE_BUILD_TYPE}
+            COMMAND_OUT EXEFILE_INTERPRETER
+            PYTHONPATH_OUT PYTHONPATH
+            RUN_DIR $<TARGET_FILE_DIR:pyFSD>
+            BLUE_DIR_OUT BLUE_LOCATION_DIR
+        )
+
+        if(WIN32)
+            set(PYTHONPATH
+                "${PYTHONPATH}\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python"
             )
-    set_tests_properties(PythonTests PROPERTIES ENVIRONMENT "PYTHONPATH=$<TARGET_FILE_DIR:pyFSD>;BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>")
+            set(TESTS_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+        elseif(APPLE)
+            set(PYTHONPATH
+                "${PYTHONPATH}:$<TARGET_FILE_DIR:pyFSD>:${CMAKE_CURRENT_SOURCE_DIR}/tests:${CMAKE_CURRENT_SOURCE_DIR}/python"
+            )
+            set(TESTS_WORKING_DIRECTORY $<TARGET_FILE_DIR:pyFSD>)
+        else()
+            message(FATAL_ERROR "Unsupported platform")
+        endif()
+
+        set(ENV{PYTHONPATH} ${CMAKE_CURRENT_SOURCE_DIR}/python)
+        execute_process(
+            COMMAND ${Python3_EXECUTABLE} discover.py
+            OUTPUT_VARIABLE PYTHON_TESTS_STR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
+            ERROR_VARIABLE PYTHON_TEST_DISCOVERY_ERRORS
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
+        )
+
+        if(PYTHON_TEST_DISCOVERY_RETVAL)
+            message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
+        endif()
+
+        separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
+        foreach(PYTHON_TEST ${PYTHON_TESTS})
+            message(STATUS "Found test ${PYTHON_TEST}")
+            add_test(
+                NAME ${PYTHON_TEST}
+                COMMAND ${EXEFILE_INTERPRETER}
+                    /inherit
+                    /buildflavor=$<LOWER_CASE:$<CONFIG>>
+                    /py
+                    -m
+                    unittest
+                    -v
+                    ${PYTHON_TEST}
+                WORKING_DIRECTORY ${TESTS_WORKING_DIRECTORY}
+                COMMAND_EXPAND_LISTS
+            )
+            set_tests_properties(${PYTHON_TEST} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${PYTHONPATH};BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>"
+            )
+        endforeach()
+    endif()
 endif()
