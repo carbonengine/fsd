@@ -77,12 +77,14 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     )
 endif()
 
-if(WIN32 AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(BUILD_TESTING "Build and run tests" ON)
     include(CTest)
 
     if(BUILD_TESTING)
         find_package(carbon-exefile-interpreter REQUIRED CONFIG)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
         ccp_prepare_interpreter(
             TARGET pyFSD
             BUILD_TYPE ${CMAKE_BUILD_TYPE}
@@ -92,25 +94,54 @@ if(WIN32 AND CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
             BLUE_DIR_OUT BLUE_LOCATION_DIR
         )
 
-        set(PYTHONPATH
-            "${PYTHONPATH}\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python"
+        if(WIN32)
+            set(PYTHONPATH
+                "${PYTHONPATH}\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python"
+            )
+            set(TESTS_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+        elseif(APPLE)
+            set(PYTHONPATH
+                "${PYTHONPATH}:$<TARGET_FILE_DIR:pyFSD>:${CMAKE_CURRENT_SOURCE_DIR}/tests:${CMAKE_CURRENT_SOURCE_DIR}/python"
+            )
+            set(TESTS_WORKING_DIRECTORY $<TARGET_FILE_DIR:pyFSD>)
+        else()
+            message(FATAL_ERROR "Unsupported platform")
+        endif()
+
+        set(ENV{PYTHONPATH} ${CMAKE_CURRENT_SOURCE_DIR}/python)
+        execute_process(
+            COMMAND ${Python3_EXECUTABLE} discover.py
+            OUTPUT_VARIABLE PYTHON_TESTS_STR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE PYTHON_TEST_DISCOVERY_RETVAL
+            ERROR_VARIABLE PYTHON_TEST_DISCOVERY_ERRORS
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
         )
 
-        add_test(
-            NAME PythonTests
-            COMMAND ${EXEFILE_INTERPRETER}
-                /inherit
-                /buildflavor=$<LOWER_CASE:$<CONFIG>>
-                /py
-                -m
-                unittest
-                discover
-                -v
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            COMMAND_EXPAND_LISTS
-        )
-        set_tests_properties(PythonTests PROPERTIES
-            ENVIRONMENT "PYTHONPATH=${PYTHONPATH};BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>"
-        )
+        if(PYTHON_TEST_DISCOVERY_RETVAL)
+            message(FATAL_ERROR "Error encountered during test discovery:\n=== stderr: ===\n${PYTHON_TEST_DISCOVERY_ERRORS}\n=== stdout: ===\n${PYTHON_TESTS_STR}")
+        endif()
+
+        separate_arguments(PYTHON_TESTS UNIX_COMMAND ${PYTHON_TESTS_STR})
+        foreach(PYTHON_TEST ${PYTHON_TESTS})
+            message(STATUS "Found test ${PYTHON_TEST}")
+            add_test(
+                NAME ${PYTHON_TEST}
+                COMMAND ${EXEFILE_INTERPRETER}
+                    /inherit
+                    /buildflavor=$<LOWER_CASE:$<CONFIG>>
+                    /py
+                    -m
+                    unittest
+                    -v
+                    ${PYTHON_TEST}
+                WORKING_DIRECTORY ${TESTS_WORKING_DIRECTORY}
+                COMMAND_EXPAND_LISTS
+            )
+            set_tests_properties(${PYTHON_TEST} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${PYTHONPATH};BUILDFLAVOR=$<LOWER_CASE:$<CONFIG>>"
+            )
+        endforeach()
     endif()
 endif()
