@@ -1,3 +1,5 @@
+# Copyright © 2023 CCP ehf.
+
 import struct
 import pyFSD
 import unittest

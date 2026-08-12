@@ -1,3 +1,5 @@
+// Copyright © 2016 CCP ehf.
+
 #pragma once
 
 #include <unordered_map>

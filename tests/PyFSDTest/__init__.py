@@ -1,3 +1,5 @@
+# Copyright © 2023 CCP ehf.
+
 try:
     from _pyfsd_debug import *
 except ImportError:
