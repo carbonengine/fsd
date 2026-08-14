@@ -7,8 +7,9 @@
   "registries": [
     {
       "kind": "git",
-      "repository": "https://github.com/carbonengine/vcpkg-registry.git",
-      "baseline": "ec7d8d86e07879d1c73ba2016ac34dd6610fef6a",
+      "repository": "git@github.com:ccptoebeans/vcpkg-registry.git",
+      "baseline": "a578f475b76a204b85f777692adc26bde7cdf01c",
+      "reference": "VCPKG_PLATFORM_TOOLSET_VERSION",
       "packages": [
         "python3",
         "carbon-*",
