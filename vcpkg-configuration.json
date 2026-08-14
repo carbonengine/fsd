@@ -8,7 +8,7 @@
     {
       "kind": "git",
       "repository": "git@github.com:ccptoebeans/vcpkg-registry.git",
-      "baseline": "a578f475b76a204b85f777692adc26bde7cdf01c",
+      "baseline": "5f392338d021e810f56a65f489ebfa23b1936f8f",
       "reference": "VCPKG_PLATFORM_TOOLSET_VERSION",
       "packages": [
         "python3",
