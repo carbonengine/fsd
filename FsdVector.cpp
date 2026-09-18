@@ -88,7 +88,7 @@ PyObject* FsdVector::GetByIndex(uint8_t index)
             m_schemaAttributes.schemaTypeAsString.c_str(),
             int( originalIndex ),
             int( length ) );
-		return 0;
+		return nullptr;
 	}
 	return GetValueByIndex(index);
 }
