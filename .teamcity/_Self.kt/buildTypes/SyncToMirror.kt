@@ -45,7 +45,7 @@ object SyncToMirror : BuildType({
                     '+refs/heads/*:refs/heads/*' \
                     '+refs/tags/*:refs/tags/*'
                 git -C "${'$'}mirror_dir" remote add mirror \
-                    "https://x-access-token:%GITHUB_CARBON_PAT%@github.com/%github_mirror_repository%.git"
+                    "git@github.com:%github_mirror_repository%.git"
                 git -C "${'$'}mirror_dir" push --prune mirror \
                     '+refs/heads/*:refs/heads/*' \
                     '+refs/tags/*:refs/tags/*'
