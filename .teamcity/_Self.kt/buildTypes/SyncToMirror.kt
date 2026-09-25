@@ -44,11 +44,9 @@ object SyncToMirror : BuildType({
                 git -C "${'$'}mirror_dir" fetch --prune "${'$'}source_url" \
                     '+refs/heads/*:refs/heads/*' \
                     '+refs/tags/*:refs/tags/*'
-                git -C "${'$'}mirror_dir" remote add mirror \
+                git -C "${'$'}mirror_dir" remote add destination \
                     "git@github.com:%github_mirror_repository%.git"
-                git -C "${'$'}mirror_dir" push --prune mirror \
-                    '+refs/heads/*:refs/heads/*' \
-                    '+refs/tags/*:refs/tags/*'
+                git -C "${'$'}mirror_dir" push --mirror destination
             """.trimIndent()
         }
     }
