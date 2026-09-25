@@ -53,7 +53,11 @@ object SyncToMirror : BuildType({
 
     triggers {
         vcs {
-            branchFilter = "+:refs/tags/*"
+            branchFilter = """
+                +:*
+                -:<default>
+                -pr:*
+            """.trimIndent()
         }
     }
 
