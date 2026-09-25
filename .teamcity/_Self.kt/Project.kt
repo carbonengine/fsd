@@ -21,4 +21,5 @@ object Project : Project({
     subProject(MacOS.Project)
 
     buildType(PublishToPerforce)
+    buildType(SyncToMirror)
 })
