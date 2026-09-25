@@ -30,6 +30,9 @@ object SyncToMirror : BuildType({
     steps {
         script {
             name = "Mirror branches and tags to GitHub"
+            // TeamCity gives us only the tag that triggered the build, not a full repository
+            // TeamCity delivery state is also not trustworthy or intented to be manipulated for these purposes
+            // Rather than relying on that checkout state, fetch all branches and tags ourselves
             scriptContent = """
                 set -euo pipefail
 
