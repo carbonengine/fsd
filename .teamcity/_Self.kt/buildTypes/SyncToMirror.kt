@@ -56,7 +56,6 @@ object SyncToMirror : BuildType({
             branchFilter = """
                 +:*
                 -:<default>
-                -pr:*
             """.trimIndent()
         }
     }
