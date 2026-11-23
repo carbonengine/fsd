@@ -101,7 +101,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
                 "${PYTHONPATH}\;$<TARGET_FILE_DIR:pyFSD>\;${CMAKE_CURRENT_SOURCE_DIR}/python"
             )
             set(TESTS_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-        elseif(APPLE)
+        elseif(APPLE OR LINUX)
             set(PYTHONPATH
                 "${PYTHONPATH}:$<TARGET_FILE_DIR:pyFSD>:${CMAKE_CURRENT_SOURCE_DIR}/tests:${CMAKE_CURRENT_SOURCE_DIR}/python"
             )
